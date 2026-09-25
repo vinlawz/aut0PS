@@ -192,7 +192,9 @@ class GenerateArticleFallbackTests(unittest.TestCase):
                 try:
                     return next(responses)
                 except StopIteration as exc:
-                    raise module.CopilotGenerationError("Authentication failed during repair") from exc
+                    raise module.CopilotGenerationError(
+                        "Authentication failed during repair"
+                    ) from exc
 
             def qa_check(*_args, **_kwargs):
                 return next(qa_results)

@@ -217,7 +217,11 @@ def _fallback_tags(texts: list[str], default: list[str]) -> list[str]:
 def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
     selected = list(pages[:5])
     source_count = len(
-        {_source_label(row["source"], row["url"]) for row in pages if _clean_text(row["source"]) or _clean_text(row["url"])}
+        {
+            _source_label(row["source"], row["url"])
+            for row in pages
+            if _clean_text(row["source"]) or _clean_text(row["url"])
+        }
     )
     highlights = []
     for index, row in enumerate(selected, start=1):
