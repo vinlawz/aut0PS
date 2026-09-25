@@ -364,7 +364,7 @@ def _fallback_digest_article(day: str, edition_files: list[Path]) -> dict:
         ]
     )
     return {
-        "title": "%s daily devops digest" % day,
+        "title": "%s daily digest for people who still have tickets to close" % day,
         "description": "the whole day, boiled down so you can get back to your actual backlog.",
         "tags": ["devops", "platform-engineering", "daily-digest", "automation"],
         "body": "\n".join(body_lines).strip(),

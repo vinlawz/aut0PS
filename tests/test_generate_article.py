@@ -124,7 +124,10 @@ class GenerateArticleFallbackTests(unittest.TestCase):
                 [edition_one / "index.md", edition_two / "index.md"],
             )
 
-        self.assertEqual(article["title"], "2026-09-25 daily devops digest")
+        self.assertEqual(
+            article["title"],
+            "2026-09-25 daily digest for people who still have tickets to close",
+        )
         self.assertIn("## today's editions", article["body"])
         self.assertIn("- edition-1", article["body"])
         self.assertIn("https://example.com/a", article["body"])
