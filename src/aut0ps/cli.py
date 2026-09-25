@@ -11,7 +11,7 @@ from .article import build_article_brief, select_article_sources
 from .config import SearchSeed, Settings, load_settings, render_search_query
 from .fallback_client import FallbackClient, ResilientClient
 from .firecrawl_client import FirecrawlClient, FirecrawlConfigurationError
-from .pipeline import RunSummary, Aut0psPipeline
+from .pipeline import Aut0psPipeline, RunSummary
 from .storage import Storage
 
 
