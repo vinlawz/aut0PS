@@ -14,6 +14,7 @@ running in programmatic mode, billed to the repo owner's Copilot subscription.
 """
 
 import argparse
+import collections
 import datetime as dt
 import json
 import os
@@ -22,6 +23,7 @@ import sqlite3
 import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
 
 COPILOT_BIN = os.getenv("COPILOT_CLI_BIN", "copilot")
 DEFAULT_MODEL = os.getenv("ARTICLE_MODEL", "")  # empty = Copilot CLI's default model
@@ -58,6 +60,10 @@ Respond with ONLY a JSON object (no markdown fence around it) with these keys:
   "tags": array of 3-6 lowercase hyphen-separated tags,
   "body": the full article body in plain markdown (no front matter, no H1),
           ending with a 'sources' or 'today's editions' H2 section as instructed."""
+
+
+class CopilotGenerationError(RuntimeError):
+    """Raised when the Copilot CLI cannot produce usable article JSON."""
 
 
 def _today() -> str:
@@ -113,9 +119,11 @@ def _call_model(model: str, prompt: str, out_path: Path) -> str:
     try:
         result = subprocess.run(command, capture_output=True, text=True, timeout=1800)
     except FileNotFoundError:
-        raise SystemExit(
+        raise CopilotGenerationError(
             "Copilot CLI not found; install it with: npm install -g @github/copilot"
         )
+    except subprocess.TimeoutExpired as exc:
+        raise CopilotGenerationError("Copilot CLI timed out while generating the article") from exc
     if out_path.exists():
         content = out_path.read_text(encoding="utf-8")
         out_path.unlink()
@@ -123,7 +131,7 @@ def _call_model(model: str, prompt: str, out_path: Path) -> str:
         # Fall back to the chat transcript if the agent answered inline.
         content = result.stdout or ""
     if not content.strip():
-        raise SystemExit(
+        raise CopilotGenerationError(
             "Copilot CLI returned no article (exit %d): %s"
             % (result.returncode, (result.stderr or result.stdout or "")[-2000:])
         )
@@ -140,14 +148,227 @@ def _parse_article_json(raw: str) -> dict:
     except json.JSONDecodeError:
         match = re.search(r"\{.*\}", text, re.DOTALL)
         if not match:
-            raise SystemExit("Model response was not valid JSON")
-        data = json.loads(match.group(0))
+            raise CopilotGenerationError("Model response was not valid JSON")
+        try:
+            data = json.loads(match.group(0))
+        except json.JSONDecodeError as exc:
+            raise CopilotGenerationError("Model response was not valid JSON") from exc
     for key in ("title", "body"):
         if not str(data.get(key, "")).strip():
-            raise SystemExit("Model response is missing '%s'" % key)
+            raise CopilotGenerationError("Model response is missing '%s'" % key)
     data.setdefault("description", "")
     data.setdefault("tags", [])
     return data
+
+
+def _clean_text(value: object) -> str:
+    return " ".join(str(value or "").split())
+
+
+def _trim_text(value: object, limit: int = 240) -> str:
+    text = _clean_text(value)
+    if len(text) <= limit:
+        return text
+    return text[: limit - 3].rstrip() + "..."
+
+
+def _label_from_url(url: str) -> str:
+    host = (urlsplit(url).hostname or "").lower() if "://" in url else ""
+    if host.startswith("www."):
+        host = host[4:]
+    return host or "the source"
+
+
+def _source_label(source: object, url: object) -> str:
+    clean_source = _clean_text(source)
+    if clean_source:
+        return clean_source
+    clean_url = _clean_text(url)
+    derived = _label_from_url(clean_url)
+    if derived != "the source":
+        return derived
+    return clean_url or derived
+
+
+def _fallback_tags(texts: list[str], default: list[str]) -> list[str]:
+    vocabulary = (
+        "devops",
+        "platform-engineering",
+        "sre",
+        "kubernetes",
+        "observability",
+        "security",
+        "automation",
+        "ci-cd",
+        "cloud",
+        "infrastructure-as-code",
+    )
+    combined = " ".join(texts).lower()
+    counts = collections.Counter(tag for tag in vocabulary if tag.replace("-", " ") in combined)
+    tags = [tag for tag, _ in counts.most_common(4)]
+    for tag in default:
+        if tag not in tags:
+            tags.append(tag)
+        if len(tags) >= 4:
+            break
+    return tags[:4]
+
+
+def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
+    selected = list(pages[:5])
+    source_count = len(
+        {
+            _source_label(row["source"], row["url"])
+            for row in selected
+            if _clean_text(row["source"]) or _clean_text(row["url"])
+        }
+    )
+    highlights = []
+    for index, row in enumerate(selected, start=1):
+        url = _clean_text(row["url"])
+        title = _clean_text(row["title"]) or url or "source item %d" % index
+        summary = _trim_text(
+            row["description"] or row["markdown"] or "the source did not include a summary."
+        )
+        source = _source_label(row["source"], row["url"])
+        highlights.extend(
+            [
+                "### %s" % title,
+                "",
+                "[%s](%s) from %s is worth your time because %s"
+                % (title, url, source, summary.rstrip(". ") + "."),
+                "",
+            ]
+        )
+    body_lines = [
+        "## what you should care about",
+        "",
+        (
+            "this edition pulled %d pages across %d sources and highlights the "
+            "strongest technical themes from the current crawl window."
+        )
+        % (len(pages), source_count),
+        (
+            "the strongest threads here point back to day-two engineering pressure: "
+            "teams are tuning delivery speed, reliability, and platform guardrails "
+            "at the same time."
+        ),
+        "",
+        "## notable reads",
+        "",
+        *highlights,
+        "## sources",
+        "",
+        *[
+            "- [%s](%s)"
+            % (
+                _clean_text(row["title"])
+                or _clean_text(row["url"])
+                or "source item %d" % index,
+                row["url"],
+            )
+            for index, row in enumerate(selected, start=1)
+        ],
+    ]
+    return {
+        "title": "devops roundup for %s, edition %s" % (day, edition_label),
+        "description": (
+            "the short version: plenty happened, and at least some of it was "
+            "actually useful."
+        ),
+        "tags": _fallback_tags(
+            [
+                _clean_text(row["title"])
+                + " "
+                + _clean_text(row["description"])
+                + " "
+                + _clean_text(row["markdown"])
+                for row in selected
+            ],
+            ["devops", "platform-engineering", "automation"],
+        ),
+        "body": "\n".join(body_lines).strip(),
+    }
+
+
+def _first_article_paragraph(text: str) -> str:
+    for chunk in re.split(r"\n\s*\n", text):
+        cleaned = _clean_text(chunk)
+        if not cleaned or cleaned.startswith("#") or cleaned == "---" or cleaned == FOOTER:
+            continue
+        return _trim_text(cleaned, limit=320)
+    return "the earlier article was stored, but it did not expose a clean summary paragraph."
+
+
+def _extract_article_urls(text: str) -> list[str]:
+    return list(dict.fromkeys(re.findall(r"https?://[^\s)>\"]+", text)))
+
+
+def _fallback_digest_article(day: str, edition_files: list[Path]) -> dict:
+    summaries = []
+    referenced_urls = []
+    for path in edition_files:
+        text = path.read_text(encoding="utf-8")
+        urls = _extract_article_urls(text)
+        referenced_urls.extend(urls[:3])
+        edition_name = path.parent.name
+        summaries.extend(
+            [
+                "### %s" % edition_name,
+                "",
+                "as covered in %s, %s"
+                % (edition_name, _first_article_paragraph(text).rstrip(". ") + "."),
+                "",
+                *[
+                    "- source carried forward: [%s](%s)" % (_label_from_url(url), url)
+                    for url in urls[:3]
+                ],
+                "",
+            ]
+        )
+    body_lines = [
+        "## what shaped the day",
+        "",
+        (
+            "today's crawl produced %d edition articles, which is enough signal to "
+            "spot the main technical themes across the full day."
+        )
+        % len(edition_files),
+        (
+            "the day kept circling the same operational tradeoff: faster delivery "
+            "still needs cleaner rollback paths, tighter observability, and less "
+            "platform sprawl."
+        ),
+        "",
+        "## edition by edition",
+        "",
+        *summaries,
+    ]
+    if referenced_urls:
+        body_lines.extend(
+            [
+                "## referenced sources",
+                "",
+                *[
+                    "- [%s](%s)" % (_label_from_url(url), url)
+                    for url in list(dict.fromkeys(referenced_urls))
+                ],
+                "",
+            ]
+        )
+    body_lines.extend(
+        [
+            "## today's editions",
+            "",
+            *["- %s" % path.parent.name for path in edition_files],
+        ]
+    )
+    return {
+        "title": "%s daily digest for people who still have tickets to close" % day,
+        "description": "the whole day, boiled down so you can get back to your actual backlog.",
+        "tags": ["devops", "platform-engineering", "daily-digest", "automation"],
+        "body": "\n".join(body_lines).strip(),
+    }
 
 
 def sanitize_body(body: str) -> str:
@@ -206,26 +427,46 @@ def _write_bundle(bundle_dir: Path, data: dict, extra_meta: dict) -> Path:
     return index_path
 
 
-def _generate(model: str, user_prompt: str, bundle_dir: Path, extra_meta: dict) -> Path:
+def _generate(
+    model: str,
+    user_prompt: str,
+    bundle_dir: Path,
+    extra_meta: dict,
+    fallback_factory,
+) -> Path:
     out_path = Path(".article-output.json")
     prompt = "%s\n\n%s" % (SYSTEM_PROMPT, user_prompt)
-    raw = _call_model(model, prompt, out_path)
-    data = _parse_article_json(raw)
-    index_path = _write_bundle(bundle_dir, data, extra_meta)
+    def _write_fallback_article(exc: CopilotGenerationError):
+        print("Warning: Copilot article generation failed, using fallback article: %s" % exc)
+        fallback_data = fallback_factory()
+        fallback_index = _write_bundle(bundle_dir, fallback_data, extra_meta)
+        fallback_code, fallback_report = _qa_check(fallback_index, str(fallback_data["title"]))
+        return fallback_index, fallback_code, fallback_report
 
-    code, report = _qa_check(index_path, str(data["title"]))
-    if code != 0:
-        # One repair round: hand the QA failures back to the agent.
-        print("QA failures, requesting a fix:\n%s" % report)
-        repair_prompt = (
-            "%s\n\nYou previously produced this article JSON:\n%s\n\nThe QA checker "
-            "found these problems:\n%s\n\nFix every FAIL and return the corrected "
-            "article as the same JSON object, nothing else."
-            % (SYSTEM_PROMPT, json.dumps(data, ensure_ascii=False), report)
-        )
-        data = _parse_article_json(_call_model(model, repair_prompt, out_path))
+    try:
+        raw = _call_model(model, prompt, out_path)
+        data = _parse_article_json(raw)
+    except CopilotGenerationError as exc:
+        index_path, code, report = _write_fallback_article(exc)
+    else:
         index_path = _write_bundle(bundle_dir, data, extra_meta)
         code, report = _qa_check(index_path, str(data["title"]))
+        if code != 0:
+            # One repair round: hand the QA failures back to the agent.
+            print("QA failures, requesting a fix:\n%s" % report)
+            repair_prompt = (
+                "%s\n\nYou previously produced this article JSON:\n%s\n\nThe QA checker "
+                "found these problems:\n%s\n\nFix every FAIL and return the corrected "
+                "article as the same JSON object, nothing else."
+                % (SYSTEM_PROMPT, json.dumps(data, ensure_ascii=False), report)
+            )
+            try:
+                data = _parse_article_json(_call_model(model, repair_prompt, out_path))
+            except CopilotGenerationError as exc:
+                index_path, code, report = _write_fallback_article(exc)
+            else:
+                index_path = _write_bundle(bundle_dir, data, extra_meta)
+                code, report = _qa_check(index_path, str(data["title"]))
     print("QA report for %s:\n%s" % (index_path, report))
     if code != 0:
         # sanitize_body already fixed what can be fixed mechanically; don't fail the
@@ -258,7 +499,8 @@ def _run_article(args) -> Path:
         "technically substantive themes for developers. Focus on DevOps, platform engineering, "
         "site reliability, infrastructure as code, observability, and automation. "
         "Do not force an AI angle or make agents the default subject. Group related items, "
-        "explain why they matter to engineers, and link every claim to its source URL inline. End the "
+        "explain why they matter to engineers, and link every claim to its source URL "
+        "inline. End the "
         "body with an H2 'sources' section listing all URLs used.\n\n%s"
         % (day, args.edition_label, len(pages), "\n\n".join(sources))
     )
@@ -269,6 +511,7 @@ def _run_article(args) -> Path:
         user_prompt,
         bundle_dir,
         {"date": day, "edition": args.edition_label, "pages": len(pages)},
+        lambda: _fallback_run_article(day, args.edition_label, pages),
     )
 
 
@@ -294,7 +537,8 @@ def _digest_article(args) -> Path:
         "editorial attention to other well-supported areas such as platform engineering, site "
         "reliability, infrastructure as code, CI/CD, observability, and security. Do not "
         "invent a connection to AI agents when the evidence does not support one. "
-        "Reference earlier articles by their edition name (e.g. 'as covered in edition-1') as well as the original "
+        "Reference earlier articles by their edition name (e.g. 'as covered in "
+        "edition-1') as well as the original "
         "source URLs they cite. Give the article a funny, memorable title. End the body with "
         "an H2 \"today's editions\" section naming each edition article.\n\n%s"
         % (day, len(edition_files), "\n\n---\n\n".join(previous))
@@ -305,7 +549,13 @@ def _digest_article(args) -> Path:
         "type": "daily-digest",
         "source_articles": [p.parent.name for p in edition_files],
     }
-    return _generate(args.model, user_prompt, bundle_dir, extra_meta)
+    return _generate(
+        args.model,
+        user_prompt,
+        bundle_dir,
+        extra_meta,
+        lambda: _fallback_digest_article(day, edition_files),
+    )
 
 
 def main() -> int:
