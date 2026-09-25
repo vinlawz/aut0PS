@@ -79,6 +79,30 @@ class GenerateArticleFallbackTests(unittest.TestCase):
 
         self.assertIn("this edition pulled 1 pages across 1 sources", article["body"])
 
+    def test_run_fallback_article_counts_malformed_urls_as_distinct_sources(self):
+        article = self.module._fallback_run_article(
+            "2026-09-25",
+            "5",
+            [
+                {
+                    "url": "/first",
+                    "title": "first",
+                    "description": "one",
+                    "markdown": "one",
+                    "source": "",
+                },
+                {
+                    "url": "/second",
+                    "title": "second",
+                    "description": "two",
+                    "markdown": "two",
+                    "source": "",
+                },
+            ],
+        )
+
+        self.assertIn("this edition pulled 2 pages across 2 sources", article["body"])
+
     def test_digest_fallback_lists_editions(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -147,6 +171,53 @@ class GenerateArticleFallbackTests(unittest.TestCase):
 
             self.assertIn("## sources", body)
             self.assertIn(module.FOOTER, body)
+            self.assertEqual(meta["title"], "fallback article")
+        finally:
+            module._call_model = original_call_model
+            module._qa_check = original_qa_check
+
+    def test_generate_uses_fallback_when_repair_call_fails(self):
+        module = self.module
+        original_call_model = module._call_model
+        original_qa_check = module._qa_check
+        try:
+            responses = iter(
+                [
+                    '{"title":"model article","body":"## sources\\n\\n- [one](https://example.com)"}'
+                ]
+            )
+            qa_results = iter([(1, "FAIL line 1"), (0, "all checks passed")])
+
+            def call_model(*_args, **_kwargs):
+                try:
+                    return next(responses)
+                except StopIteration as exc:
+                    raise module.CopilotGenerationError("Authentication failed during repair") from exc
+
+            def qa_check(*_args, **_kwargs):
+                return next(qa_results)
+
+            module._call_model = call_model
+            module._qa_check = qa_check
+
+            with tempfile.TemporaryDirectory() as tmp:
+                bundle_dir = Path(tmp) / "articles" / "2026-09-25" / "edition-5"
+                index_path = module._generate(
+                    "",
+                    "prompt",
+                    bundle_dir,
+                    {"date": "2026-09-25", "edition": "5"},
+                    lambda: {
+                        "title": "fallback article",
+                        "description": "desc",
+                        "tags": ["devops"],
+                        "body": "## sources\n\n- [example](https://example.com/source)",
+                    },
+                )
+
+                meta = json.loads((bundle_dir / "meta.json").read_text(encoding="utf-8"))
+
+            self.assertEqual(index_path.name, "index.md")
             self.assertEqual(meta["title"], "fallback article")
         finally:
             module._call_model = original_call_model

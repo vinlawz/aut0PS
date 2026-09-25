@@ -179,6 +179,17 @@ def _label_from_url(url: str) -> str:
     return host or "the source"
 
 
+def _source_label(source: object, url: object) -> str:
+    clean_source = _clean_text(source)
+    if clean_source:
+        return clean_source
+    clean_url = _clean_text(url)
+    derived = _label_from_url(clean_url)
+    if derived != "the source":
+        return derived
+    return clean_url or derived
+
+
 def _fallback_tags(texts: list[str], default: list[str]) -> list[str]:
     vocabulary = (
         "devops",
@@ -206,11 +217,7 @@ def _fallback_tags(texts: list[str], default: list[str]) -> list[str]:
 def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
     selected = list(pages[:5])
     source_count = len(
-        {
-            _clean_text(row["source"]) or _label_from_url(_clean_text(row["url"]))
-            for row in pages
-            if _clean_text(row["source"]) or _clean_text(row["url"])
-        }
+        {_source_label(row["source"], row["url"]) for row in pages if _clean_text(row["source"]) or _clean_text(row["url"])}
     )
     highlights = []
     for index, row in enumerate(selected, start=1):
@@ -219,7 +226,7 @@ def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
         summary = _trim_text(
             row["description"] or row["markdown"] or "the source did not include a summary."
         )
-        source = _clean_text(row["source"]) or _label_from_url(url)
+        source = _source_label(row["source"], row["url"])
         highlights.extend(
             [
                 "### %s" % title,
@@ -425,9 +432,19 @@ def _generate(
 ) -> Path:
     out_path = Path(".article-output.json")
     prompt = "%s\n\n%s" % (SYSTEM_PROMPT, user_prompt)
+    def _write_fallback_article(exc: CopilotGenerationError):
+        print("Warning: Copilot article generation failed, using fallback article: %s" % exc)
+        fallback_data = fallback_factory()
+        fallback_index = _write_bundle(bundle_dir, fallback_data, extra_meta)
+        fallback_code, fallback_report = _qa_check(fallback_index, str(fallback_data["title"]))
+        return fallback_index, fallback_code, fallback_report
+
     try:
         raw = _call_model(model, prompt, out_path)
         data = _parse_article_json(raw)
+    except CopilotGenerationError as exc:
+        index_path, code, report = _write_fallback_article(exc)
+    else:
         index_path = _write_bundle(bundle_dir, data, extra_meta)
         code, report = _qa_check(index_path, str(data["title"]))
         if code != 0:
@@ -439,14 +456,13 @@ def _generate(
                 "article as the same JSON object, nothing else."
                 % (SYSTEM_PROMPT, json.dumps(data, ensure_ascii=False), report)
             )
-            data = _parse_article_json(_call_model(model, repair_prompt, out_path))
-            index_path = _write_bundle(bundle_dir, data, extra_meta)
-            code, report = _qa_check(index_path, str(data["title"]))
-    except CopilotGenerationError as exc:
-        print("Warning: Copilot article generation failed, using fallback article: %s" % exc)
-        data = fallback_factory()
-        index_path = _write_bundle(bundle_dir, data, extra_meta)
-        code, report = _qa_check(index_path, str(data["title"]))
+            try:
+                data = _parse_article_json(_call_model(model, repair_prompt, out_path))
+            except CopilotGenerationError as exc:
+                index_path, code, report = _write_fallback_article(exc)
+            else:
+                index_path = _write_bundle(bundle_dir, data, extra_meta)
+                code, report = _qa_check(index_path, str(data["title"]))
     print("QA report for %s:\n%s" % (index_path, report))
     if code != 0:
         # sanitize_body already fixed what can be fixed mechanically; don't fail the
