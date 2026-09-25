@@ -244,8 +244,8 @@ def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
         "## what you should care about",
         "",
         (
-            "this edition pulled %d pages across %d sources, so you do not need to "
-            "pretend your bookmarks folder is a knowledge system."
+            "this edition pulled %d pages across %d sources and highlights the "
+            "strongest technical themes from the current crawl window."
         )
         % (len(pages), source_count),
         (
@@ -331,7 +331,7 @@ def _fallback_digest_article(day: str, edition_files: list[Path]) -> dict:
         "",
         (
             "today's crawl produced %d edition articles, which is enough signal to "
-            "spot patterns without pretending every release note is a revolution."
+            "spot the main technical themes across the full day."
         )
         % len(edition_files),
         (
