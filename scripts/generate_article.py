@@ -23,6 +23,7 @@ import sqlite3
 import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
 
 COPILOT_BIN = os.getenv("COPILOT_CLI_BIN", "copilot")
 DEFAULT_MODEL = os.getenv("ARTICLE_MODEL", "")  # empty = Copilot CLI's default model
@@ -169,11 +170,7 @@ def _trim_text(value: object, limit: int = 240) -> str:
 
 
 def _label_from_url(url: str) -> str:
-    host = (re.sub(r"^www\.", "", (Path(url).name if "://" not in url else "")) or "").strip()
-    if not host and "://" in url:
-        from urllib.parse import urlsplit
-
-        host = (urlsplit(url).hostname or "").lower().lstrip("www.")
+    host = (urlsplit(url).hostname or "").lower().lstrip("www.") if "://" in url else ""
     return host or "the source"
 
 
@@ -203,12 +200,16 @@ def _fallback_tags(texts: list[str], default: list[str]) -> list[str]:
 
 def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
     selected = list(pages[:5])
-    source_count = len({row["source"] or _label_from_url(row["url"]) for row in pages if row["url"]})
+    source_count = len(
+        {row["source"] or _label_from_url(row["url"]) for row in pages if row["url"]}
+    )
     highlights = []
     for row in selected:
         title = _clean_text(row["title"] or row["url"])
         url = _clean_text(row["url"])
-        summary = _trim_text(row["description"] or row["markdown"] or "the source did not include a summary.")
+        summary = _trim_text(
+            row["description"] or row["markdown"] or "the source did not include a summary."
+        )
         source = _clean_text(row["source"]) or _label_from_url(url)
         highlights.extend(
             [
@@ -222,9 +223,16 @@ def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
     body_lines = [
         "## what you should care about",
         "",
-        "this edition pulled %d pages across %d sources, so you do not need to pretend your bookmarks folder is a knowledge system."
+        (
+            "this edition pulled %d pages across %d sources, so you do not need to "
+            "pretend your bookmarks folder is a knowledge system."
+        )
         % (len(pages), source_count),
-        "the strongest threads here point back to day-two engineering pressure: teams are tuning delivery speed, reliability, and platform guardrails at the same time.",
+        (
+            "the strongest threads here point back to day-two engineering pressure: "
+            "teams are tuning delivery speed, reliability, and platform guardrails "
+            "at the same time."
+        ),
         "",
         "## notable reads",
         "",
@@ -235,7 +243,10 @@ def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
     ]
     return {
         "title": "devops roundup for %s, edition %s" % (day, edition_label),
-        "description": "the short version: plenty happened, and at least some of it was actually useful.",
+        "description": (
+            "the short version: plenty happened, and at least some of it was "
+            "actually useful."
+        ),
         "tags": _fallback_tags(
             [
                 _clean_text(row["title"])
@@ -276,7 +287,8 @@ def _fallback_digest_article(day: str, edition_files: list[Path]) -> dict:
             [
                 "### %s" % edition_name,
                 "",
-                "as covered in %s, %s" % (edition_name, _first_article_paragraph(text).rstrip(". ") + "."),
+                "as covered in %s, %s"
+                % (edition_name, _first_article_paragraph(text).rstrip(". ") + "."),
                 "",
                 *[
                     "- source carried forward: [%s](%s)" % (_label_from_url(url), url)
@@ -288,9 +300,16 @@ def _fallback_digest_article(day: str, edition_files: list[Path]) -> dict:
     body_lines = [
         "## what shaped the day",
         "",
-        "today's crawl produced %d edition articles, which is enough signal to spot patterns without pretending every release note is a revolution."
+        (
+            "today's crawl produced %d edition articles, which is enough signal to "
+            "spot patterns without pretending every release note is a revolution."
+        )
         % len(edition_files),
-        "the day kept circling the same operational tradeoff: faster delivery still needs cleaner rollback paths, tighter observability, and less platform sprawl.",
+        (
+            "the day kept circling the same operational tradeoff: faster delivery "
+            "still needs cleaner rollback paths, tighter observability, and less "
+            "platform sprawl."
+        ),
         "",
         "## edition by edition",
         "",
@@ -442,7 +461,8 @@ def _run_article(args) -> Path:
         "technically substantive themes for developers. Focus on DevOps, platform engineering, "
         "site reliability, infrastructure as code, observability, and automation. "
         "Do not force an AI angle or make agents the default subject. Group related items, "
-        "explain why they matter to engineers, and link every claim to its source URL inline. End the "
+        "explain why they matter to engineers, and link every claim to its source URL "
+        "inline. End the "
         "body with an H2 'sources' section listing all URLs used.\n\n%s"
         % (day, args.edition_label, len(pages), "\n\n".join(sources))
     )
@@ -479,7 +499,8 @@ def _digest_article(args) -> Path:
         "editorial attention to other well-supported areas such as platform engineering, site "
         "reliability, infrastructure as code, CI/CD, observability, and security. Do not "
         "invent a connection to AI agents when the evidence does not support one. "
-        "Reference earlier articles by their edition name (e.g. 'as covered in edition-1') as well as the original "
+        "Reference earlier articles by their edition name (e.g. 'as covered in "
+        "edition-1') as well as the original "
         "source URLs they cite. Give the article a funny, memorable title. End the body with "
         "an H2 \"today's editions\" section naming each edition article.\n\n%s"
         % (day, len(edition_files), "\n\n---\n\n".join(previous))
