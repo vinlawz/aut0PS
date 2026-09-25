@@ -203,7 +203,6 @@ def _fallback_tags(texts: list[str], default: list[str]) -> list[str]:
 
 def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
     selected = list(pages[:5])
-    urls = [row["url"] for row in selected if row["url"]]
     source_count = len({row["source"] or _label_from_url(row["url"]) for row in pages if row["url"]})
     highlights = []
     for row in selected:
