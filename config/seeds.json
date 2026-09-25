@@ -1,153 +1,227 @@
 {
   "queries": [
-    "Aut0ps technology",
-    "software engineering trends",
-    "developer tools, hardware, science, and AI"
+    "DevOps automation trends",
+    "site reliability engineering",
+    "platform engineering, infrastructure as code, and AIOps"
   ],
   "search_terms": [
     {
       "name": "Aut0ps core search",
       "platform": "google",
-      "query": "\"Aut0ps\" OR \"Aut0ps {year}\""
+      "query": "\"aut0ps\" OR \"auto ops\" automation"
     },
     {
-      "name": "September launch season",
+      "name": "Platform engineering",
       "platform": "google",
-      "query": "(\"September launch\" OR \"fall launch\") (technology OR gadgets) after:{start_date}"
+      "query": "(\"platform engineering\" OR \"internal developer platform\" OR IDP) (launch OR adoption OR framework) after:{start_date}"
     },
     {
-      "name": "Apple and flagship launches",
+      "name": "Site reliability engineering",
       "platform": "google",
-      "query": "(Apple OR iPhone OR iPad OR Mac OR Android OR foldable) (event OR launch OR release) after:{start_date}"
+      "query": "(SRE OR \"site reliability\" OR \"error budget\" OR \"incident response\") after:{start_date}"
     },
     {
-      "name": "IFA announcements",
+      "name": "Infrastructure as code",
       "platform": "google",
-      "query": "(IFA OR \"IFA {year}\") (smartphone OR laptop OR TV OR AI)"
+      "query": "(Terraform OR OpenTofu OR Pulumi OR \"infrastructure as code\" OR IaC) (release OR update OR migration) after:{start_date}"
     },
     {
-      "name": "AI agents and computer use",
+      "name": "Kubernetes and cloud-native",
       "platform": "google",
-      "query": "(\"AI agent\" OR agentic OR \"computer use\") (launch OR benchmark OR security) after:{start_date}"
+      "query": "(Kubernetes OR k8s OR \"cloud native\" OR CNCF OR Helm OR service mesh) (release OR CVE OR update) after:{start_date}"
     },
     {
-      "name": "Models and benchmarks",
+      "name": "CI/CD and GitOps",
       "platform": "google",
-      "query": "(LLM OR \"foundation model\" OR multimodal OR reasoning) (release OR benchmark) after:{start_date}"
+      "query": "(\"CI/CD\" OR \"continuous deployment\" OR GitOps OR ArgoCD OR \"GitHub Actions\" OR Jenkins) (release OR outage OR best practice) after:{start_date}"
     },
     {
-      "name": "AI chips and data centers",
+      "name": "AIOps and AI agents for operations",
       "platform": "google",
-      "query": "(\"AI chip\" OR GPU OR TPU OR NPU OR chiplet OR \"custom silicon\" OR \"data center\") (launch OR investment OR pricing) after:{start_date}"
+      "query": "(AIOps OR \"AI agent\" OR agentic) (ops OR devops OR \"incident response\" OR observability) after:{start_date}"
     },
     {
-      "name": "Security incidents",
+      "name": "Observability and monitoring",
       "platform": "google",
-      "query": "(zero-day OR CVE OR ransomware OR \"supply-chain attack\") after:{start_date}"
+      "query": "(observability OR telemetry OR OpenTelemetry OR Prometheus OR Grafana OR Datadog) (launch OR release OR outage) after:{start_date}"
     },
     {
-      "name": "Hardware, mobile, and consumer technology",
+      "name": "Cloud provider outages and incidents",
       "platform": "google",
-      "query": "(smartphone OR laptop OR processor OR camera OR gaming OR wearable OR robotics OR drone) (launch OR review OR release OR benchmark) after:{start_date}"
+      "query": "(AWS OR Azure OR \"Google Cloud\" OR GCP) (outage OR incident OR postmortem) after:{start_date}"
     },
     {
-      "name": "Open source and developer platforms",
+      "name": "DevSecOps and supply chain security",
       "platform": "google",
-      "query": "(\"open source\" OR Linux OR GitHub OR PostgreSQL OR Kubernetes OR browser OR JavaScript) (release OR project OR funding OR security) after:{start_date}"
+      "query": "(DevSecOps OR \"supply chain\" OR SBOM OR \"software supply chain\" OR CVE) (pipeline OR container OR registry) after:{start_date}"
     },
     {
-      "name": "Science, climate, and space technology",
+      "name": "FinOps and cloud cost",
       "platform": "google",
-      "query": "(space OR satellite OR climate OR energy OR battery OR biotech OR quantum) (launch OR research OR breakthrough OR investment) after:{start_date}"
+      "query": "(FinOps OR \"cloud cost\" OR \"cost optimization\") (cloud OR kubernetes OR infrastructure) after:{start_date}"
     },
     {
-      "name": "Telecom, fintech, and digital infrastructure",
+      "name": "Chaos engineering and resilience",
       "platform": "google",
-      "query": "(telecom OR 5G OR fiber OR fintech OR payments OR broadband OR cloud infrastructure) (launch OR investment OR regulation OR outage) after:{start_date}"
+      "query": "(\"chaos engineering\" OR resilience OR \"disaster recovery\" OR failover) (testing OR practice OR tool) after:{start_date}"
     },
     {
-      "name": "Africa and East Africa technology",
-      "platform": "google",
-      "query": "(Kenya OR Africa OR Nairobi) (AI OR fintech OR telecom OR \"data center\" OR startup) after:{start_date}"
-    },
-    {
-      "name": "Technology conversations on X",
+      "name": "DevOps and platform engineering on X",
       "platform": "x",
-      "query": "(AI OR \"developer tools\" OR cloud) (launch OR release OR funding OR \"open source\") since:{start_date} lang:en"
+      "query": "(devops OR \"platform engineering\" OR sre OR kubernetes OR terraform) (release OR launch OR outage) since:{start_date} lang:en"
     },
     {
-      "name": "Techmeme on X",
-      "platform": "x",
-      "query": "from:Techmeme since:{start_date} lang:en"
-    },
-    {
-      "name": "TechCrunch on X",
-      "platform": "x",
-      "query": "from:TechCrunch since:{start_date} lang:en"
-    },
-    {
-      "name": "Reuters technology on X",
-      "platform": "x",
-      "query": "from:ReutersTech since:{start_date} lang:en"
-    },
-    {
-      "name": "AI labs on X",
-      "platform": "x",
-      "query": "(from:OpenAI OR from:AnthropicAI OR from:GoogleDeepMind) since:{start_date} lang:en"
-    },
-    {
-      "name": "Open web technology",
+      "name": "Open web automation and ops",
       "platform": "web",
-      "query": "technology startup software engineering trends after:{start_date}"
+      "query": "devops platform engineering automation infrastructure trends after:{start_date}"
     }
   ],
   "crawl_sites": [
     {
-      "name": "Techmeme front page",
-      "url": "https://techmeme.com",
-      "enabled": true,
-      "mode": "scrape",
-      "provider": "firecrawl",
-      "limit": 1,
-      "rss_feeds": ["https://techmeme.com/feed.xml"],
-      "notes": "Use the current front page only; the map contains dated archive and fragment URLs."
-    },
-    {
-      "name": "TechCrunch",
-      "url": "https://techcrunch.com/",
-      "enabled": false,
-      "mode": "crawl",
-      "provider": "firecrawl",
-      "limit": 10,
-      "rss_feeds": ["https://techcrunch.com/feed/"],
-      "include_paths": ["/category/artificial-intelligence/*", "/category/startups/*", "/category/security/*"],
-      "exclude_paths": ["/cdn-cgi/*", "/video/*", "/podcasts/*", "/events/*", "/sitemap*"],
-      "max_depth": 1,
-      "notes": "Disabled: representative scrape returned a Cloudflare verification page; use search/RSS until access is stable."
-    },
-    {
-      "name": "The Verge tech",
-      "url": "https://www.theverge.com/tech",
+      "name": "The New Stack",
+      "url": "https://thenewstack.io/",
       "enabled": true,
       "mode": "crawl",
       "provider": "fallback",
       "limit": 15,
-      "rss_feeds": ["https://www.theverge.com/rss/index.xml"],
-      "include_paths": ["/tech/*"],
-      "exclude_paths": ["/auth/*", "/subscribe*", "/video/*", "/podcasts/*"],
+      "rss_feeds": ["https://thenewstack.io/feed/"],
+      "include_paths": ["/20*/*"],
+      "exclude_paths": ["/category/*", "/tag/*", "/author/*", "/sponsored/*"],
+      "max_depth": 1,
+      "notes": "Cloud-native, platform engineering, and DevOps news with a reliable RSS feed."
+    },
+    {
+      "name": "InfoQ",
+      "url": "https://www.infoq.com/devops/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 15,
+      "rss_feeds": ["https://www.infoq.com/devops/rss/"],
+      "include_paths": ["/news/*", "/articles/*"],
+      "exclude_paths": ["/presentations/*", "/minibooks/*"],
       "max_depth": 1
     },
     {
-      "name": "Ars Technica technology and AI",
-      "url": "https://arstechnica.com/",
+      "name": "DevOps.com",
+      "url": "https://devops.com/",
       "enabled": true,
       "mode": "crawl",
       "provider": "fallback",
       "limit": 15,
-      "rss_feeds": ["https://feeds.arstechnica.com/arstechnica/index"],
-      "include_paths": ["/ai/*", "/gadgets/*", "/tech-policy/*", "/security/*"],
-      "exclude_paths": ["/civis/*", "/sitemap*", "/post_tag-sitemap*"],
-      "max_depth": 2
+      "rss_feeds": ["https://devops.com/feed/"],
+      "include_paths": ["/20*/*"],
+      "exclude_paths": ["/category/*", "/tag/*", "/author/*", "/webinars/*"],
+      "max_depth": 1
+    },
+    {
+      "name": "Kubernetes blog",
+      "url": "https://kubernetes.io/blog/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://kubernetes.io/feed.xml"],
+      "include_paths": ["/blog/20*"],
+      "exclude_paths": ["/blog/tags/*"],
+      "max_depth": 1
+    },
+    {
+      "name": "CNCF blog",
+      "url": "https://www.cncf.io/blog/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://www.cncf.io/feed/"],
+      "include_paths": ["/blog/20*"],
+      "exclude_paths": ["/blog/category/*", "/blog/tag/*"],
+      "max_depth": 1
+    },
+    {
+      "name": "HashiCorp blog",
+      "url": "https://www.hashicorp.com/blog",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://www.hashicorp.com/blog/feed.xml"],
+      "include_paths": ["/blog/*"],
+      "exclude_paths": ["/blog/tags/*"],
+      "max_depth": 1
+    },
+    {
+      "name": "AWS DevOps blog",
+      "url": "https://aws.amazon.com/blogs/devops/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://aws.amazon.com/blogs/devops/feed/"],
+      "include_paths": ["/blogs/devops/*"],
+      "exclude_paths": ["/blogs/devops/tag/*"],
+      "max_depth": 1
+    },
+    {
+      "name": "Google Cloud blog (DevOps and SRE)",
+      "url": "https://cloud.google.com/blog/products/devops-sre",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://cloud.google.com/blog/products/devops-sre/rss"],
+      "include_paths": ["/products/devops-sre/*"],
+      "exclude_paths": [],
+      "max_depth": 1
+    },
+    {
+      "name": "Docker blog",
+      "url": "https://www.docker.com/blog/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://www.docker.com/blog/feed/"],
+      "include_paths": ["/blog/*"],
+      "exclude_paths": ["/blog/tag/*", "/blog/category/*"],
+      "max_depth": 1
+    },
+    {
+      "name": "Grafana Labs blog",
+      "url": "https://grafana.com/blog/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://grafana.com/blog/index.xml"],
+      "include_paths": ["/blog/20*"],
+      "exclude_paths": ["/blog/tags/*"],
+      "max_depth": 1
+    },
+    {
+      "name": "GitHub blog (engineering)",
+      "url": "https://github.blog/category/engineering/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://github.blog/engineering.atom"],
+      "include_paths": ["/20*/*"],
+      "exclude_paths": ["/tag/*", "/category/*"],
+      "max_depth": 1
+    },
+    {
+      "name": "SRE weekly",
+      "url": "https://sreweekly.com/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 5,
+      "rss_feeds": ["https://sreweekly.com/feed/"],
+      "include_paths": ["/20*/*"],
+      "exclude_paths": [],
+      "max_depth": 1,
+      "notes": "Weekly digest; low page limit since it publishes on a weekly cadence."
     },
     {
       "name": "Hacker News item pages",
@@ -157,229 +231,59 @@
       "provider": "fallback",
       "limit": 15,
       "rss_feeds": ["https://news.ycombinator.com/rss"],
-      "include_paths": ["/item*"] ,
+      "include_paths": ["/item*"],
       "exclude_paths": ["/login*", "/user*", "/from*", "/submit*", "/newest*", "/ask*", "/show*", "/jobs*"],
       "max_depth": 1,
-      "notes": "Crawl HN item pages for discussions; follow linked stories separately only when needed."
-    },
-    {
-      "name": "KrebsOnSecurity",
-      "url": "https://krebsonsecurity.com/",
-      "enabled": true,
-      "mode": "crawl",
-      "provider": "fallback",
-      "limit": 15,
-      "rss_feeds": ["https://krebsonsecurity.com/feed/"],
-      "include_paths": ["/20*/*"],
-      "exclude_paths": ["/feed*", "/comments/*", "/wp-*"],
-      "max_depth": 1
-    },
-    {
-      "name": "TechCabal",
-      "url": "https://techcabal.com/",
-      "enabled": true,
-      "mode": "crawl",
-      "provider": "fallback",
-      "limit": 15,
-      "rss_feeds": ["https://techcabal.com/feed/"],
-      "include_paths": ["/20*/*"],
-      "exclude_paths": ["/sitemap*", "/category/*", "/tag/*", "/author/*"],
-      "max_depth": 1
-    },
-    {
-      "name": "Techweez",
-      "url": "https://techweez.com/",
-      "enabled": true,
-      "mode": "crawl",
-      "provider": "fallback",
-      "limit": 15,
-      "rss_feeds": ["https://techweez.com/feed/"],
-      "include_paths": ["/20*/*"],
-      "exclude_paths": ["/category/*", "/tag/*", "/author/*", "/wp-*"],
-      "max_depth": 1
-    },
-    {
-      "name": "TLDR tech",
-      "url": "https://tldr.tech/tech",
-      "enabled": true,
-      "mode": "crawl",
-      "provider": "fallback",
-      "limit": 15,
-      "rss_feeds": [],
-      "include_paths": ["/tech/*", "/ai/*", "/dev/*", "/infosec/*"],
-      "exclude_paths": ["/subscribe*", "/login*"],
-      "max_depth": 1
-    },
-    {
-      "name": "The Batch",
-      "url": "https://www.deeplearning.ai/the-batch/",
-      "enabled": true,
-      "mode": "crawl",
-      "provider": "fallback",
-      "limit": 10,
-      "rss_feeds": ["https://www.deeplearning.ai/the-batch/feed/"],
-      "include_paths": ["/the-batch/*"],
-      "exclude_paths": ["/the-batch/tag/*", "/the-batch/search*"],
-      "max_depth": 1
-    },
-    {
-      "name": "Apple Newsroom",
-      "url": "https://www.apple.com/newsroom/",
-      "enabled": true,
-      "mode": "crawl",
-      "provider": "fallback",
-      "limit": 10,
-      "rss_feeds": ["https://www.apple.com/newsroom/rss-feed.rss"],
-      "include_paths": ["/newsroom/20*"],
-      "exclude_paths": ["/newsroom/archive*", "/newsroom/videos*"],
-      "max_depth": 1
-    },
-    {
-      "name": "Samsung Newsroom",
-      "url": "https://news.samsung.com/global/",
-      "enabled": true,
-      "mode": "crawl",
-      "provider": "fallback",
-      "limit": 10,
-      "rss_feeds": ["https://news.samsung.com/global/feed"],
-      "include_paths": ["/global/*"],
-      "exclude_paths": ["/global/category/*", "/global/tag/*", "/global/wp-*"],
-      "max_depth": 1
-    },
-    {
-      "name": "Google Keyword blog",
-      "url": "https://blog.google/",
-      "enabled": true,
-      "mode": "crawl",
-      "provider": "fallback",
-      "limit": 10,
-      "rss_feeds": ["https://blog.google/rss/"],
-      "include_paths": ["/products/*", "/technology/*"],
-      "exclude_paths": ["/authors/*", "/press/*", "/around-the-globe/*"],
-      "max_depth": 1
-    },
-    {
-      "name": "DJI Newsroom",
-      "url": "https://www.dji.com/newsroom/news",
-      "enabled": true,
-      "mode": "crawl",
-      "provider": "fallback",
-      "limit": 5,
-      "rss_feeds": [],
-      "include_paths": ["/newsroom/news*"],
-      "exclude_paths": ["/careers*", "/support*", "/where-to-buy*"],
-      "max_depth": 1,
-      "notes": "No public RSS feed; relies on crawling the newsroom listing."
-    },
-    {
-      "name": "Microsoft Source",
-      "url": "https://news.microsoft.com/source/",
-      "enabled": true,
-      "mode": "crawl",
-      "provider": "fallback",
-      "limit": 10,
-      "rss_feeds": ["https://news.microsoft.com/feed/"],
-      "include_paths": ["/source/*"],
-      "exclude_paths": ["/source/tag/*", "/source/author/*", "/wp-*"],
-      "max_depth": 1
-    },
-    {
-      "name": "NVIDIA blog",
-      "url": "https://blogs.nvidia.com/",
-      "enabled": true,
-      "mode": "crawl",
-      "provider": "fallback",
-      "limit": 10,
-      "rss_feeds": ["https://blogs.nvidia.com/feed/"],
-      "include_paths": ["/blog/*"],
-      "exclude_paths": ["/blog/category/*", "/blog/tag/*", "/wp-*"],
-      "max_depth": 1
-    },
-    {
-      "name": "Meta Newsroom",
-      "url": "https://about.fb.com/news/",
-      "enabled": true,
-      "mode": "crawl",
-      "provider": "fallback",
-      "limit": 10,
-      "rss_feeds": ["https://about.fb.com/feed/"],
-      "include_paths": ["/news/20*"],
-      "exclude_paths": ["/news/tag/*", "/news/category/*", "/wp-*"],
-      "max_depth": 1
-    },
-    {
-      "name": "Amazon News",
-      "url": "https://www.aboutamazon.com/news",
-      "enabled": true,
-      "mode": "crawl",
-      "provider": "fallback",
-      "limit": 10,
-      "rss_feeds": ["https://www.aboutamazon.com/news/rss"],
-      "include_paths": ["/news/*"],
-      "exclude_paths": ["/news/tag/*", "/careers*"],
-      "max_depth": 1
+      "notes": "Crawl HN item pages for discussions relevant to devops/infrastructure topics."
     }
   ],
   "terms": [
-    "technology",
-    "software",
-    "engineering",
-    "developer",
-    "programming",
-    "artificial intelligence",
-    "machine learning",
-    "cloud",
-    "cybersecurity",
-    "data",
-    "startup",
-    "open source",
-    "apple",
-    "iphone",
-    "ipad",
-    "mac",
-    "android",
-    "samsung",
-    "galaxy",
-    "pixel",
-    "dji",
-    "drone",
-    "nvidia",
-    "microsoft",
-    "meta",
-    "amazon",
-    "foldable",
-    "ifa",
+    "devops",
+    "sre",
+    "site reliability",
+    "platform engineering",
+    "internal developer platform",
+    "infrastructure as code",
+    "terraform",
+    "opentofu",
+    "pulumi",
+    "kubernetes",
+    "cloud native",
+    "cncf",
+    "helm",
+    "service mesh",
+    "ci/cd",
+    "continuous deployment",
+    "gitops",
+    "argocd",
+    "github actions",
+    "jenkins",
+    "aiops",
     "ai agent",
     "agentic",
-    "computer use",
-    "llm",
-    "foundation model",
-    "multimodal",
-    "reasoning",
-    "gpu",
-    "tpu",
-    "npu",
-    "chiplet",
-    "data center",
-    "hbm",
-    "networking",
-    "post-quantum",
-    "pqc",
-    "zero-day",
+    "observability",
+    "telemetry",
+    "opentelemetry",
+    "prometheus",
+    "grafana",
+    "datadog",
+    "outage",
+    "incident",
+    "postmortem",
+    "devsecops",
+    "supply chain",
+    "sbom",
     "cve",
-    "ransomware",
-    "supply-chain attack",
-    "funding",
-    "acquisition",
-    "ipo",
-    "layoffs",
-    "antitrust",
-    "kenya",
-    "africa",
-    "nairobi",
-    "fintech",
-    "telecom",
-    "mobile money"
+    "finops",
+    "cloud cost",
+    "chaos engineering",
+    "resilience",
+    "disaster recovery",
+    "failover",
+    "automation",
+    "docker",
+    "container",
+    "microservices"
   ],
   "include_domains": [],
   "exclude_domains": [

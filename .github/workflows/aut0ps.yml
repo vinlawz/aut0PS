@@ -1,0 +1,134 @@
+name: aut0ps daily editions
+
+# 5 crawl+article editions per day, Kenyan time (EAT = UTC+3, no DST):
+#   06:00, 10:00, 14:00, 18:00, 22:00 EAT -> 03,07,11,15,19 UTC.
+# The 22:00 EAT edition also generates the end-of-day digest article.
+# Active for one month from launch only (guarded in the first step).
+on:
+  schedule:
+    - cron: "0 3 * * *"
+    - cron: "0 7 * * *"
+    - cron: "0 11 * * *"
+    - cron: "0 15 * * *"
+    - cron: "0 19 * * *"
+  workflow_dispatch:
+    inputs:
+      digest:
+        description: "Also generate the daily digest"
+        type: boolean
+        default: false
+      edition:
+        description: "Edition number for a manual run"
+        type: choice
+        options: ["1", "2", "3", "4", "5"]
+        default: "5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: aut0ps-runs
+  cancel-in-progress: false
+
+jobs:
+  crawl-and-write:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      TZ: Africa/Nairobi
+      GIT_AUTHOR_NAME: vinlawz
+      GIT_AUTHOR_EMAIL: vinlawz@users.noreply.github.com
+      GIT_COMMITTER_NAME: vinlawz
+      GIT_COMMITTER_EMAIL: vinlawz@users.noreply.github.com
+    steps:
+      - name: Stop after one month
+        id: window
+        run: |
+          today=$(date -u +%Y-%m-%d)
+          if [[ "$today" > "2026-10-25" ]]; then
+            echo "Past the one-month run window; skipping run."
+            echo "active=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "active=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.window.outputs.active == 'true'
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        if: steps.window.outputs.active == 'true'
+        uses: astral-sh/setup-uv@v4
+        with:
+          python-version: "3.12"
+
+      - name: Determine edition number from schedule
+        if: steps.window.outputs.active == 'true'
+        id: slot
+        run: |
+          case "${{ github.event.schedule }}" in
+            "0 3 * * *") edition=1 ;;   # 06:00 EAT
+            "0 7 * * *") edition=2 ;;   # 10:00 EAT
+            "0 11 * * *") edition=3 ;;  # 14:00 EAT
+            "0 15 * * *") edition=4 ;;  # 18:00 EAT
+            "0 19 * * *") edition=5 ;;  # 22:00 EAT
+            "") edition="${{ inputs.edition }}" ;;
+            *)
+              echo "Unknown schedule: ${{ github.event.schedule }}"
+              exit 1
+              ;;
+          esac
+          echo "edition=$edition" >> "$GITHUB_OUTPUT"
+          if [[ "$edition" == "5" || "${{ inputs.digest }}" == "true" ]]; then
+            echo "digest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "digest=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Copilot CLI
+        if: steps.window.outputs.active == 'true'
+        run: npm install -g @github/copilot
+
+      - name: Crawl and store
+        if: steps.window.outputs.active == 'true'
+        env:
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          AUT0PS_START_DATE: "2026-09-25"
+        run: |
+          set +e
+          uv run aut0ps run-all
+          code=$?
+          set -e
+          # 0 = clean, 3 = partial failures but data stored; both are usable.
+          if [[ "$code" != "0" && "$code" != "3" ]]; then
+            echo "Crawl failed with exit code $code"
+            exit "$code"
+          fi
+
+      - name: Generate edition article
+        if: steps.window.outputs.active == 'true'
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        run: |
+          uv run python scripts/generate_article.py run \
+            --edition-label "${{ steps.slot.outputs.edition }}"
+
+      - name: Generate daily digest
+        if: steps.window.outputs.active == 'true' && steps.slot.outputs.digest == 'true'
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        run: |
+          uv run python scripts/generate_article.py digest
+
+      - name: Commit results
+        if: steps.window.outputs.active == 'true'
+        run: |
+          git add data articles
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+          day=$(TZ=Africa/Nairobi date +%Y-%m-%d)
+          git commit -m "aut0ps $day edition ${{ steps.slot.outputs.edition }}: crawl data and article"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

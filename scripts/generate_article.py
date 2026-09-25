@@ -1,9 +1,9 @@
-"""Generate blog articles from the Aut0ps corpus using the article-writer skill.
+"""Generate blog articles from the aut0ps corpus using the article-writer skill.
 
-Follows Chris Achinga's article-writer skill
-(github.com/achingachris/my-skills, plugins/my-skills/skills/article-writer):
-technical-tutorial voice, page bundles (index.md), no YAML front matter, no H1,
-no em/en dashes, attribution footer, and a mechanical QA pass via qa_check.py.
+Adapted from the article-writer skill conventions (github.com/achingachris/my-skills,
+plugins/my-skills/skills/article-writer): technical-tutorial voice, page bundles
+(index.md), no YAML front matter, no H1, no em/en dashes, attribution footer, and a
+mechanical QA pass via qa_check.py.
 
 Modes:
     run    - write one article covering pages fetched today (per crawl edition)
@@ -29,11 +29,10 @@ MAX_PAGES = 25
 EXCERPT_CHARS = 1200
 QA_SCRIPT = Path(__file__).parent / "article_writer" / "qa_check.py"
 DAILY_INGEST_NAME = "daily-ingest"
-FOOTER = "*Written and Authored by Chris, Edited and assisted by Copilot agent for aut0ps*"
+FOOTER = "*Written by the aut0ps automated crawler, edited and assisted by the Copilot agent*"
 
-SYSTEM_PROMPT = """You write blog articles in Chris Achinga's voice for me.chrisdevcode.com.
-Chris is a Lead Software Engineer in Kenya (Mombasa/Nairobi), works with Python/Django,
-React/Next.js, and React Native, and is active in African tech communities.
+SYSTEM_PROMPT = """You write technical blog articles about DevOps, platform engineering,
+site reliability, and infrastructure automation for a developer audience.
 
 Article type: technical tutorial / tech roundup. Voice rules:
 - lowercase throughout, except proper nouns (Python, Django, Kenya) and acronyms (API, CSS, AI).
@@ -197,7 +196,7 @@ def _write_bundle(bundle_dir: Path, data: dict, extra_meta: dict) -> Path:
         "title": str(data["title"]).strip(),
         "description": str(data.get("description", "")).strip(),
         "tags": [str(tag).strip() for tag in data.get("tags", []) if str(tag).strip()],
-        "author": "Chris Achinga",
+        "author": "vinlawz",
         "generated": dt.datetime.now(dt.timezone.utc).isoformat(),
     }
     meta.update(extra_meta)
@@ -254,11 +253,10 @@ def _run_article(args) -> Path:
         )
     user_prompt = (
         "Today is %s (crawl edition %s of the day). Below are %d web pages collected by "
-        "Chris's automated technology crawler during this edition window. Write ONE cohesive "
+        "the aut0ps automated crawler during this edition window. Write ONE cohesive "
         "technical article (600-1000 words) that synthesizes the most interesting and "
-        "technically substantive themes for developers. Technology is broader than AI agents: "
-        "actively look for meaningful coverage of hardware, consumer devices, software, "
-        "open source, security, telecom, fintech, science, climate, space, and startups. "
+        "technically substantive themes for developers. Focus on DevOps, platform engineering, "
+        "site reliability, infrastructure as code, observability, and automation. "
         "Do not force an AI angle or make agents the default subject. Group related items, "
         "explain why they matter to engineers, and link every claim to its source URL inline. End the "
         "body with an H2 'sources' section listing all URLs used.\n\n%s"
@@ -288,14 +286,14 @@ def _digest_article(args) -> Path:
             "## Article: %s\n\n%s" % (path.parent.name, path.read_text(encoding="utf-8"))
         )
     user_prompt = (
-        "Today is %s. Below are the %d articles generated earlier today from Chris's "
+        "Today is %s. Below are the %d articles generated earlier today from aut0ps's "
         "scheduled crawl editions. Write the FINAL daily article (800-1200 words): a polished "
         "editorial that synthesizes the whole day, highlights the most important "
         "developments, notes how the story evolved across editions, and references the earlier "
-        "articles. Keep the day balanced: AI agents may be important, but give equal editorial "
-        "attention to other well-supported technology areas such as hardware, software, "
-        "security, infrastructure, open source, science, and consumer technology. Do not "
-        "invent a connection to agents when the evidence does not support one. "
+        "articles. Keep the day balanced: AIOps and AI agents may be important, but give equal "
+        "editorial attention to other well-supported areas such as platform engineering, site "
+        "reliability, infrastructure as code, CI/CD, observability, and security. Do not "
+        "invent a connection to AI agents when the evidence does not support one. "
         "Reference earlier articles by their edition name (e.g. 'as covered in edition-1') as well as the original "
         "source URLs they cite. Give the article a funny, memorable title. End the body with "
         "an H2 \"today's editions\" section naming each edition article.\n\n%s"

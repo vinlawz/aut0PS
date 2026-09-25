@@ -12,7 +12,7 @@ import re
 import sys
 from pathlib import Path
 
-FOOTER = "*Written and Authored by Chris, Edited and assisted by Copilot agent for aut0ps*"
+FOOTER = "*Written by the aut0ps automated crawler, edited and assisted by the Copilot agent*"
 
 # Words allowed to keep capitals in titles (proper nouns / acronyms are fine;
 # this list is only for the checker's "obviously fine" shortlist — anything
