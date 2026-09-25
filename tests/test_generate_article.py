@@ -44,6 +44,24 @@ class GenerateArticleFallbackTests(unittest.TestCase):
         self.assertIn("[devops update](https://example.com/devops)", article["body"])
         self.assertIn("automation", article["tags"])
 
+    def test_run_fallback_article_uses_placeholder_when_title_is_missing(self):
+        article = self.module._fallback_run_article(
+            "2026-09-25",
+            "5",
+            [
+                {
+                    "url": "",
+                    "title": "",
+                    "description": "",
+                    "markdown": "",
+                    "source": "",
+                }
+            ],
+        )
+
+        self.assertIn("### source item 1", article["body"])
+        self.assertIn("- [source item 1]()", article["body"])
+
     def test_digest_fallback_lists_editions(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -69,6 +87,10 @@ class GenerateArticleFallbackTests(unittest.TestCase):
         self.assertIn("## today's editions", article["body"])
         self.assertIn("- edition-1", article["body"])
         self.assertIn("https://example.com/a", article["body"])
+
+    def test_label_from_url_only_strips_www_prefix(self):
+        self.assertEqual(self.module._label_from_url("https://www.example.com/a"), "example.com")
+        self.assertEqual(self.module._label_from_url("https://web.example.com/a"), "web.example.com")
 
     def test_generate_uses_fallback_when_copilot_fails(self):
         module = self.module

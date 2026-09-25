@@ -170,7 +170,9 @@ def _trim_text(value: object, limit: int = 240) -> str:
 
 
 def _label_from_url(url: str) -> str:
-    host = (urlsplit(url).hostname or "").lower().lstrip("www.") if "://" in url else ""
+    host = (urlsplit(url).hostname or "").lower() if "://" in url else ""
+    if host.startswith("www."):
+        host = host[4:]
     return host or "the source"
 
 
@@ -204,9 +206,9 @@ def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
         {row["source"] or _label_from_url(row["url"]) for row in pages if row["url"]}
     )
     highlights = []
-    for row in selected:
-        title = _clean_text(row["title"] or row["url"])
+    for index, row in enumerate(selected, start=1):
         url = _clean_text(row["url"])
+        title = _clean_text(row["title"]) or url or "source item %d" % index
         summary = _trim_text(
             row["description"] or row["markdown"] or "the source did not include a summary."
         )
@@ -239,7 +241,11 @@ def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
         *highlights,
         "## sources",
         "",
-        *["- [%s](%s)" % (_clean_text(row["title"] or row["url"]), row["url"]) for row in selected],
+        *[
+            "- [%s](%s)"
+            % (_clean_text(row["title"]) or _clean_text(row["url"]) or "source item %d" % index, row["url"])
+            for index, row in enumerate(selected, start=1)
+        ],
     ]
     return {
         "title": "devops roundup for %s, edition %s" % (day, edition_label),
