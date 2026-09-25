@@ -219,7 +219,7 @@ def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
     source_count = len(
         {
             _source_label(row["source"], row["url"])
-            for row in pages
+            for row in selected
             if _clean_text(row["source"]) or _clean_text(row["url"])
         }
     )
