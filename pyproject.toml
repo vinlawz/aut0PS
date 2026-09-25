@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aut0ps"
+version = "0.1.0"
+description = "A focused, searchable web corpus for technology-related content."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Vincent chiriba" }]
+dependencies = [
+    "firecrawl-py>=2.0.0,<3.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+aut0ps = "aut0ps.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aut0ps"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+

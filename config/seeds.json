@@ -1,0 +1,398 @@
+{
+  "queries": [
+    "Aut0ps technology",
+    "software engineering trends",
+    "developer tools, hardware, science, and AI"
+  ],
+  "search_terms": [
+    {
+      "name": "Aut0ps core search",
+      "platform": "google",
+      "query": "\"Aut0ps\" OR \"Aut0ps {year}\""
+    },
+    {
+      "name": "September launch season",
+      "platform": "google",
+      "query": "(\"September launch\" OR \"fall launch\") (technology OR gadgets) after:{start_date}"
+    },
+    {
+      "name": "Apple and flagship launches",
+      "platform": "google",
+      "query": "(Apple OR iPhone OR iPad OR Mac OR Android OR foldable) (event OR launch OR release) after:{start_date}"
+    },
+    {
+      "name": "IFA announcements",
+      "platform": "google",
+      "query": "(IFA OR \"IFA {year}\") (smartphone OR laptop OR TV OR AI)"
+    },
+    {
+      "name": "AI agents and computer use",
+      "platform": "google",
+      "query": "(\"AI agent\" OR agentic OR \"computer use\") (launch OR benchmark OR security) after:{start_date}"
+    },
+    {
+      "name": "Models and benchmarks",
+      "platform": "google",
+      "query": "(LLM OR \"foundation model\" OR multimodal OR reasoning) (release OR benchmark) after:{start_date}"
+    },
+    {
+      "name": "AI chips and data centers",
+      "platform": "google",
+      "query": "(\"AI chip\" OR GPU OR TPU OR NPU OR chiplet OR \"custom silicon\" OR \"data center\") (launch OR investment OR pricing) after:{start_date}"
+    },
+    {
+      "name": "Security incidents",
+      "platform": "google",
+      "query": "(zero-day OR CVE OR ransomware OR \"supply-chain attack\") after:{start_date}"
+    },
+    {
+      "name": "Hardware, mobile, and consumer technology",
+      "platform": "google",
+      "query": "(smartphone OR laptop OR processor OR camera OR gaming OR wearable OR robotics OR drone) (launch OR review OR release OR benchmark) after:{start_date}"
+    },
+    {
+      "name": "Open source and developer platforms",
+      "platform": "google",
+      "query": "(\"open source\" OR Linux OR GitHub OR PostgreSQL OR Kubernetes OR browser OR JavaScript) (release OR project OR funding OR security) after:{start_date}"
+    },
+    {
+      "name": "Science, climate, and space technology",
+      "platform": "google",
+      "query": "(space OR satellite OR climate OR energy OR battery OR biotech OR quantum) (launch OR research OR breakthrough OR investment) after:{start_date}"
+    },
+    {
+      "name": "Telecom, fintech, and digital infrastructure",
+      "platform": "google",
+      "query": "(telecom OR 5G OR fiber OR fintech OR payments OR broadband OR cloud infrastructure) (launch OR investment OR regulation OR outage) after:{start_date}"
+    },
+    {
+      "name": "Africa and East Africa technology",
+      "platform": "google",
+      "query": "(Kenya OR Africa OR Nairobi) (AI OR fintech OR telecom OR \"data center\" OR startup) after:{start_date}"
+    },
+    {
+      "name": "Technology conversations on X",
+      "platform": "x",
+      "query": "(AI OR \"developer tools\" OR cloud) (launch OR release OR funding OR \"open source\") since:{start_date} lang:en"
+    },
+    {
+      "name": "Techmeme on X",
+      "platform": "x",
+      "query": "from:Techmeme since:{start_date} lang:en"
+    },
+    {
+      "name": "TechCrunch on X",
+      "platform": "x",
+      "query": "from:TechCrunch since:{start_date} lang:en"
+    },
+    {
+      "name": "Reuters technology on X",
+      "platform": "x",
+      "query": "from:ReutersTech since:{start_date} lang:en"
+    },
+    {
+      "name": "AI labs on X",
+      "platform": "x",
+      "query": "(from:OpenAI OR from:AnthropicAI OR from:GoogleDeepMind) since:{start_date} lang:en"
+    },
+    {
+      "name": "Open web technology",
+      "platform": "web",
+      "query": "technology startup software engineering trends after:{start_date}"
+    }
+  ],
+  "crawl_sites": [
+    {
+      "name": "Techmeme front page",
+      "url": "https://techmeme.com",
+      "enabled": true,
+      "mode": "scrape",
+      "provider": "firecrawl",
+      "limit": 1,
+      "rss_feeds": ["https://techmeme.com/feed.xml"],
+      "notes": "Use the current front page only; the map contains dated archive and fragment URLs."
+    },
+    {
+      "name": "TechCrunch",
+      "url": "https://techcrunch.com/",
+      "enabled": false,
+      "mode": "crawl",
+      "provider": "firecrawl",
+      "limit": 10,
+      "rss_feeds": ["https://techcrunch.com/feed/"],
+      "include_paths": ["/category/artificial-intelligence/*", "/category/startups/*", "/category/security/*"],
+      "exclude_paths": ["/cdn-cgi/*", "/video/*", "/podcasts/*", "/events/*", "/sitemap*"],
+      "max_depth": 1,
+      "notes": "Disabled: representative scrape returned a Cloudflare verification page; use search/RSS until access is stable."
+    },
+    {
+      "name": "The Verge tech",
+      "url": "https://www.theverge.com/tech",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 15,
+      "rss_feeds": ["https://www.theverge.com/rss/index.xml"],
+      "include_paths": ["/tech/*"],
+      "exclude_paths": ["/auth/*", "/subscribe*", "/video/*", "/podcasts/*"],
+      "max_depth": 1
+    },
+    {
+      "name": "Ars Technica technology and AI",
+      "url": "https://arstechnica.com/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 15,
+      "rss_feeds": ["https://feeds.arstechnica.com/arstechnica/index"],
+      "include_paths": ["/ai/*", "/gadgets/*", "/tech-policy/*", "/security/*"],
+      "exclude_paths": ["/civis/*", "/sitemap*", "/post_tag-sitemap*"],
+      "max_depth": 2
+    },
+    {
+      "name": "Hacker News item pages",
+      "url": "https://news.ycombinator.com/news",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 15,
+      "rss_feeds": ["https://news.ycombinator.com/rss"],
+      "include_paths": ["/item*"] ,
+      "exclude_paths": ["/login*", "/user*", "/from*", "/submit*", "/newest*", "/ask*", "/show*", "/jobs*"],
+      "max_depth": 1,
+      "notes": "Crawl HN item pages for discussions; follow linked stories separately only when needed."
+    },
+    {
+      "name": "KrebsOnSecurity",
+      "url": "https://krebsonsecurity.com/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 15,
+      "rss_feeds": ["https://krebsonsecurity.com/feed/"],
+      "include_paths": ["/20*/*"],
+      "exclude_paths": ["/feed*", "/comments/*", "/wp-*"],
+      "max_depth": 1
+    },
+    {
+      "name": "TechCabal",
+      "url": "https://techcabal.com/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 15,
+      "rss_feeds": ["https://techcabal.com/feed/"],
+      "include_paths": ["/20*/*"],
+      "exclude_paths": ["/sitemap*", "/category/*", "/tag/*", "/author/*"],
+      "max_depth": 1
+    },
+    {
+      "name": "Techweez",
+      "url": "https://techweez.com/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 15,
+      "rss_feeds": ["https://techweez.com/feed/"],
+      "include_paths": ["/20*/*"],
+      "exclude_paths": ["/category/*", "/tag/*", "/author/*", "/wp-*"],
+      "max_depth": 1
+    },
+    {
+      "name": "TLDR tech",
+      "url": "https://tldr.tech/tech",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 15,
+      "rss_feeds": [],
+      "include_paths": ["/tech/*", "/ai/*", "/dev/*", "/infosec/*"],
+      "exclude_paths": ["/subscribe*", "/login*"],
+      "max_depth": 1
+    },
+    {
+      "name": "The Batch",
+      "url": "https://www.deeplearning.ai/the-batch/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://www.deeplearning.ai/the-batch/feed/"],
+      "include_paths": ["/the-batch/*"],
+      "exclude_paths": ["/the-batch/tag/*", "/the-batch/search*"],
+      "max_depth": 1
+    },
+    {
+      "name": "Apple Newsroom",
+      "url": "https://www.apple.com/newsroom/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://www.apple.com/newsroom/rss-feed.rss"],
+      "include_paths": ["/newsroom/20*"],
+      "exclude_paths": ["/newsroom/archive*", "/newsroom/videos*"],
+      "max_depth": 1
+    },
+    {
+      "name": "Samsung Newsroom",
+      "url": "https://news.samsung.com/global/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://news.samsung.com/global/feed"],
+      "include_paths": ["/global/*"],
+      "exclude_paths": ["/global/category/*", "/global/tag/*", "/global/wp-*"],
+      "max_depth": 1
+    },
+    {
+      "name": "Google Keyword blog",
+      "url": "https://blog.google/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://blog.google/rss/"],
+      "include_paths": ["/products/*", "/technology/*"],
+      "exclude_paths": ["/authors/*", "/press/*", "/around-the-globe/*"],
+      "max_depth": 1
+    },
+    {
+      "name": "DJI Newsroom",
+      "url": "https://www.dji.com/newsroom/news",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 5,
+      "rss_feeds": [],
+      "include_paths": ["/newsroom/news*"],
+      "exclude_paths": ["/careers*", "/support*", "/where-to-buy*"],
+      "max_depth": 1,
+      "notes": "No public RSS feed; relies on crawling the newsroom listing."
+    },
+    {
+      "name": "Microsoft Source",
+      "url": "https://news.microsoft.com/source/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://news.microsoft.com/feed/"],
+      "include_paths": ["/source/*"],
+      "exclude_paths": ["/source/tag/*", "/source/author/*", "/wp-*"],
+      "max_depth": 1
+    },
+    {
+      "name": "NVIDIA blog",
+      "url": "https://blogs.nvidia.com/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://blogs.nvidia.com/feed/"],
+      "include_paths": ["/blog/*"],
+      "exclude_paths": ["/blog/category/*", "/blog/tag/*", "/wp-*"],
+      "max_depth": 1
+    },
+    {
+      "name": "Meta Newsroom",
+      "url": "https://about.fb.com/news/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://about.fb.com/feed/"],
+      "include_paths": ["/news/20*"],
+      "exclude_paths": ["/news/tag/*", "/news/category/*", "/wp-*"],
+      "max_depth": 1
+    },
+    {
+      "name": "Amazon News",
+      "url": "https://www.aboutamazon.com/news",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://www.aboutamazon.com/news/rss"],
+      "include_paths": ["/news/*"],
+      "exclude_paths": ["/news/tag/*", "/careers*"],
+      "max_depth": 1
+    }
+  ],
+  "terms": [
+    "technology",
+    "software",
+    "engineering",
+    "developer",
+    "programming",
+    "artificial intelligence",
+    "machine learning",
+    "cloud",
+    "cybersecurity",
+    "data",
+    "startup",
+    "open source",
+    "apple",
+    "iphone",
+    "ipad",
+    "mac",
+    "android",
+    "samsung",
+    "galaxy",
+    "pixel",
+    "dji",
+    "drone",
+    "nvidia",
+    "microsoft",
+    "meta",
+    "amazon",
+    "foldable",
+    "ifa",
+    "ai agent",
+    "agentic",
+    "computer use",
+    "llm",
+    "foundation model",
+    "multimodal",
+    "reasoning",
+    "gpu",
+    "tpu",
+    "npu",
+    "chiplet",
+    "data center",
+    "hbm",
+    "networking",
+    "post-quantum",
+    "pqc",
+    "zero-day",
+    "cve",
+    "ransomware",
+    "supply-chain attack",
+    "funding",
+    "acquisition",
+    "ipo",
+    "layoffs",
+    "antitrust",
+    "kenya",
+    "africa",
+    "nairobi",
+    "fintech",
+    "telecom",
+    "mobile money"
+  ],
+  "include_domains": [],
+  "exclude_domains": [
+    "facebook.com",
+    "instagram.com",
+    "tiktok.com"
+  ],
+  "database_path": "data/aut0ps.db",
+  "max_search_results": 50,
+  "max_crawl_pages": 100,
+  "min_relevance_score": 0.0,
+  "fallback_enabled": true,
+  "fallback_timeout_seconds": 20,
+  "searxng_url": "",
+  "force_fallback": false
+}
