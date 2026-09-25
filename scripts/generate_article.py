@@ -149,7 +149,10 @@ def _parse_article_json(raw: str) -> dict:
         match = re.search(r"\{.*\}", text, re.DOTALL)
         if not match:
             raise CopilotGenerationError("Model response was not valid JSON")
-        data = json.loads(match.group(0))
+        try:
+            data = json.loads(match.group(0))
+        except json.JSONDecodeError as exc:
+            raise CopilotGenerationError("Model response was not valid JSON") from exc
     for key in ("title", "body"):
         if not str(data.get(key, "")).strip():
             raise CopilotGenerationError("Model response is missing '%s'" % key)
@@ -203,7 +206,11 @@ def _fallback_tags(texts: list[str], default: list[str]) -> list[str]:
 def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
     selected = list(pages[:5])
     source_count = len(
-        {row["source"] or _label_from_url(row["url"]) for row in pages if row["url"]}
+        {
+            _clean_text(row["source"]) or _label_from_url(_clean_text(row["url"]))
+            for row in pages
+            if _clean_text(row["source"]) or _clean_text(row["url"])
+        }
     )
     highlights = []
     for index, row in enumerate(selected, start=1):

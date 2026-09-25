@@ -62,6 +62,23 @@ class GenerateArticleFallbackTests(unittest.TestCase):
         self.assertIn("### source item 1", article["body"])
         self.assertIn("- [source item 1]()", article["body"])
 
+    def test_run_fallback_article_counts_named_sources_without_urls(self):
+        article = self.module._fallback_run_article(
+            "2026-09-25",
+            "5",
+            [
+                {
+                    "url": "",
+                    "title": "internal note",
+                    "description": "deployment cleanup",
+                    "markdown": "deployment cleanup",
+                    "source": "Internal Feed",
+                }
+            ],
+        )
+
+        self.assertIn("this edition pulled 1 pages across 1 sources", article["body"])
+
     def test_digest_fallback_lists_editions(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -95,6 +112,10 @@ class GenerateArticleFallbackTests(unittest.TestCase):
         self.assertEqual(
             self.module._label_from_url("https://web.example.com/a"), "web.example.com"
         )
+
+    def test_parse_article_json_wraps_decode_failures(self):
+        with self.assertRaises(self.module.CopilotGenerationError):
+            self.module._parse_article_json('prefix {"title": "bad", } suffix')
 
     def test_generate_uses_fallback_when_copilot_fails(self):
         module = self.module
