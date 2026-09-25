@@ -243,7 +243,12 @@ def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
         "",
         *[
             "- [%s](%s)"
-            % (_clean_text(row["title"]) or _clean_text(row["url"]) or "source item %d" % index, row["url"])
+            % (
+                _clean_text(row["title"])
+                or _clean_text(row["url"])
+                or "source item %d" % index,
+                row["url"],
+            )
             for index, row in enumerate(selected, start=1)
         ],
     ]

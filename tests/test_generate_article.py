@@ -89,8 +89,12 @@ class GenerateArticleFallbackTests(unittest.TestCase):
         self.assertIn("https://example.com/a", article["body"])
 
     def test_label_from_url_only_strips_www_prefix(self):
-        self.assertEqual(self.module._label_from_url("https://www.example.com/a"), "example.com")
-        self.assertEqual(self.module._label_from_url("https://web.example.com/a"), "web.example.com")
+        self.assertEqual(
+            self.module._label_from_url("https://www.example.com/a"), "example.com"
+        )
+        self.assertEqual(
+            self.module._label_from_url("https://web.example.com/a"), "web.example.com"
+        )
 
     def test_generate_uses_fallback_when_copilot_fails(self):
         module = self.module
