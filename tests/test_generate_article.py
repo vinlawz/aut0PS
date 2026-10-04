@@ -229,5 +229,125 @@ class GenerateArticleFallbackTests(unittest.TestCase):
             module._qa_check = original_qa_check
 
 
+class DevToPublishTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.module = _load_module()
+
+    def test_devto_tags_strips_hyphens_dedupes_and_caps_at_four(self):
+        tags = self.module._devto_tags(
+            ["Platform-Engineering", "devops", "DevOps", "site-reliability", "ci-cd", "extra"]
+        )
+        self.assertEqual(tags, ["platformengineering", "devops", "sitereliability", "cicd"])
+
+    def test_devto_tags_handles_empty_input(self):
+        self.assertEqual(self.module._devto_tags(None), [])
+        self.assertEqual(self.module._devto_tags([]), [])
+
+    def test_publish_to_devto_creates_when_no_existing_id(self):
+        module = self.module
+        original_request = module._devto_request
+        calls = []
+        try:
+            def fake_request(method, url, api_key, payload):
+                calls.append((method, url, api_key, payload))
+                return {"id": 42, "url": "https://dev.to/user/new-article"}
+
+            module._devto_request = fake_request
+            result = module._publish_to_devto(
+                api_key="key123",
+                title="new article",
+                body_markdown="body",
+                tags=["devops"],
+                description="desc",
+            )
+        finally:
+            module._devto_request = original_request
+
+        self.assertEqual(result["id"], 42)
+        method, url, api_key, payload = calls[0]
+        self.assertEqual(method, "POST")
+        self.assertEqual(url, module.DEVTO_API_URL)
+        self.assertEqual(payload["article"]["title"], "new article")
+        self.assertEqual(payload["article"]["tags"], ["devops"])
+
+    def test_publish_to_devto_updates_when_existing_id(self):
+        module = self.module
+        original_request = module._devto_request
+        calls = []
+        try:
+            def fake_request(method, url, api_key, payload):
+                calls.append((method, url))
+                return {"id": 7, "url": "https://dev.to/user/updated"}
+
+            module._devto_request = fake_request
+            module._publish_to_devto(
+                api_key="key123",
+                title="t",
+                body_markdown="b",
+                tags=[],
+                devto_id=7,
+            )
+        finally:
+            module._devto_request = original_request
+
+        method, url = calls[0]
+        self.assertEqual(method, "PUT")
+        self.assertEqual(url, "%s/7" % module.DEVTO_API_URL)
+
+    def test_publish_bundle_writes_devto_id_and_url_to_meta(self):
+        module = self.module
+        original_publish = module._publish_to_devto
+        try:
+            module._publish_to_devto = lambda **_kwargs: {
+                "id": 99,
+                "url": "https://dev.to/user/sample",
+            }
+            with tempfile.TemporaryDirectory() as tmp:
+                bundle_dir = Path(tmp)
+                index_path = bundle_dir / "index.md"
+                index_path.write_text("body text", encoding="utf-8")
+                (bundle_dir / "meta.json").write_text(
+                    json.dumps({"title": "existing", "tags": ["devops"]}), encoding="utf-8"
+                )
+
+                module._publish_bundle(
+                    index_path,
+                    {"title": "existing", "tags": ["devops"], "description": "d"},
+                    "key123",
+                )
+
+                meta = json.loads((bundle_dir / "meta.json").read_text(encoding="utf-8"))
+        finally:
+            module._publish_to_devto = original_publish
+
+        self.assertEqual(meta["devto_id"], 99)
+        self.assertEqual(meta["devto_url"], "https://dev.to/user/sample")
+
+    def test_publish_bundle_warns_and_keeps_meta_on_failure(self):
+        module = self.module
+        original_publish = module._publish_to_devto
+        try:
+            def failing_publish(**_kwargs):
+                raise module.DevToPublishError("dev.to API error 422: bad request")
+
+            module._publish_to_devto = failing_publish
+            with tempfile.TemporaryDirectory() as tmp:
+                bundle_dir = Path(tmp)
+                index_path = bundle_dir / "index.md"
+                index_path.write_text("body text", encoding="utf-8")
+                (bundle_dir / "meta.json").write_text(
+                    json.dumps({"title": "existing"}), encoding="utf-8"
+                )
+
+                module._publish_bundle(index_path, {"title": "existing"}, "key123")
+
+                meta = json.loads((bundle_dir / "meta.json").read_text(encoding="utf-8"))
+        finally:
+            module._publish_to_devto = original_publish
+
+        self.assertNotIn("devto_id", meta)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -28,3 +28,15 @@ uv run aut0ps stats
 ```
 
 Edit [`config/seeds.json`](config/seeds.json) to configure search terms and crawl sites.
+
+## Article generation and publishing
+
+`scripts/generate_article.py` writes articles from the crawled corpus using the GitHub Copilot
+CLI agent. Add `--publish` (and a `DEVTO_API_KEY` in `.env`) to publish the result to
+[dev.to](https://dev.to) as well as writing it locally; re-running the same edition updates the
+existing dev.to post instead of creating a duplicate.
+
+```bash
+uv run python scripts/generate_article.py run --edition-label 1 --publish
+uv run python scripts/generate_article.py digest --publish
+```

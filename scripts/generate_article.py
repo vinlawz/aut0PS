@@ -23,7 +23,9 @@ import sqlite3
 import subprocess
 import sys
 from pathlib import Path
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
+from urllib.request import Request, urlopen
 
 COPILOT_BIN = os.getenv("COPILOT_CLI_BIN", "copilot")
 DEFAULT_MODEL = os.getenv("ARTICLE_MODEL", "")  # empty = Copilot CLI's default model
@@ -32,6 +34,8 @@ EXCERPT_CHARS = 1200
 QA_SCRIPT = Path(__file__).parent / "article_writer" / "qa_check.py"
 DAILY_INGEST_NAME = "daily-ingest"
 FOOTER = "*Written by the aut0ps automated crawler, edited and assisted by the Copilot agent*"
+DEVTO_API_URL = "https://dev.to/api/articles"
+DEVTO_MAX_TAGS = 4
 
 SYSTEM_PROMPT = """You write technical blog articles about DevOps, platform engineering,
 site reliability, and infrastructure automation for a developer audience.
@@ -64,6 +68,87 @@ Respond with ONLY a JSON object (no markdown fence around it) with these keys:
 
 class CopilotGenerationError(RuntimeError):
     """Raised when the Copilot CLI cannot produce usable article JSON."""
+
+
+class DevToPublishError(RuntimeError):
+    """Raised when the dev.to API rejects or fails a publish/update request."""
+
+
+def _devto_tags(tags) -> list:
+    # dev.to tags must be single alphanumeric words; collapse hyphenated tags.
+    seen = []
+    for tag in tags or []:
+        cleaned = re.sub(r"[^a-z0-9]", "", str(tag).lower())
+        if cleaned and cleaned not in seen:
+            seen.append(cleaned)
+        if len(seen) == DEVTO_MAX_TAGS:
+            break
+    return seen
+
+
+def _devto_request(method: str, url: str, api_key: str, payload: dict) -> dict:
+    request = Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        method=method,
+        headers={
+            "api-key": api_key,
+            "Content-Type": "application/json",
+            "Accept": "application/vnd.forem.api-v1+json",
+        },
+    )
+    try:
+        with urlopen(request, timeout=30) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise DevToPublishError("dev.to API error %d: %s" % (exc.code, detail)) from exc
+    except URLError as exc:
+        raise DevToPublishError("dev.to API unreachable: %s" % exc.reason) from exc
+
+
+def _publish_to_devto(
+    api_key: str,
+    title: str,
+    body_markdown: str,
+    tags,
+    description: str = "",
+    devto_id=None,
+) -> dict:
+    """Create or update a dev.to article; returns the API's article JSON."""
+    payload = {
+        "article": {
+            "title": title,
+            "body_markdown": body_markdown,
+            "published": True,
+            "tags": _devto_tags(tags),
+            "description": description,
+        }
+    }
+    if devto_id:
+        return _devto_request("PUT", "%s/%s" % (DEVTO_API_URL, devto_id), api_key, payload)
+    return _devto_request("POST", DEVTO_API_URL, api_key, payload)
+
+
+def _publish_bundle(index_path: Path, data: dict, api_key: str) -> None:
+    meta_path = index_path.parent / "meta.json"
+    meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.exists() else {}
+    try:
+        result = _publish_to_devto(
+            api_key=api_key,
+            title=str(data.get("title") or meta.get("title") or "").strip(),
+            body_markdown=index_path.read_text(encoding="utf-8"),
+            tags=data.get("tags") or meta.get("tags") or [],
+            description=str(data.get("description") or meta.get("description") or "").strip(),
+            devto_id=meta.get("devto_id"),
+        )
+    except DevToPublishError as exc:
+        print("Warning: dev.to publish failed: %s" % exc)
+        return
+    meta["devto_id"] = result.get("id", meta.get("devto_id"))
+    meta["devto_url"] = result.get("url", meta.get("devto_url"))
+    meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print("Published to dev.to: %s" % meta.get("devto_url"))
 
 
 def _today() -> str:
@@ -448,6 +533,7 @@ def _generate(
     bundle_dir: Path,
     extra_meta: dict,
     fallback_factory,
+    devto_api_key: str = "",
 ) -> Path:
     out_path = Path(".article-output.json")
     prompt = "%s\n\n%s" % (SYSTEM_PROMPT, user_prompt)
@@ -456,13 +542,13 @@ def _generate(
         fallback_data = fallback_factory()
         fallback_index = _write_bundle(bundle_dir, fallback_data, extra_meta)
         fallback_code, fallback_report = _qa_check(fallback_index, str(fallback_data["title"]))
-        return fallback_index, fallback_code, fallback_report
+        return fallback_index, fallback_code, fallback_report, fallback_data
 
     try:
         raw = _call_model(model, prompt, out_path)
         data = _parse_article_json(raw)
     except CopilotGenerationError as exc:
-        index_path, code, report = _write_fallback_article(exc)
+        index_path, code, report, data = _write_fallback_article(exc)
     else:
         index_path = _write_bundle(bundle_dir, data, extra_meta)
         code, report = _qa_check(index_path, str(data["title"]))
@@ -478,7 +564,7 @@ def _generate(
             try:
                 data = _parse_article_json(_call_model(model, repair_prompt, out_path))
             except CopilotGenerationError as exc:
-                index_path, code, report = _write_fallback_article(exc)
+                index_path, code, report, data = _write_fallback_article(exc)
             else:
                 index_path = _write_bundle(bundle_dir, data, extra_meta)
                 code, report = _qa_check(index_path, str(data["title"]))
@@ -487,6 +573,8 @@ def _generate(
         # sanitize_body already fixed what can be fixed mechanically; don't fail the
         # unattended run over residual style findings, just surface them in the log.
         print("Warning: QA failures remain after repair; review this article.")
+    if devto_api_key:
+        _publish_bundle(index_path, data, devto_api_key)
     return index_path
 
 
@@ -527,6 +615,7 @@ def _run_article(args) -> Path:
         bundle_dir,
         {"date": day, "edition": args.edition_label, "pages": len(pages)},
         lambda: _fallback_run_article(day, args.edition_label, pages),
+        devto_api_key=args.devto_api_key if args.publish else "",
     )
 
 
@@ -570,6 +659,7 @@ def _digest_article(args) -> Path:
         bundle_dir,
         extra_meta,
         lambda: _fallback_digest_article(day, edition_files),
+        devto_api_key=args.devto_api_key if args.publish else "",
     )
 
 
@@ -586,7 +676,17 @@ def main() -> int:
         help="Select pages by publication date instead of fetch date (for backfills)",
     )
     parser.add_argument("--model", default=os.getenv("ARTICLE_MODEL", DEFAULT_MODEL))
+    parser.add_argument(
+        "--publish",
+        action="store_true",
+        help="Publish the generated article to dev.to (requires DEVTO_API_KEY)",
+    )
+    parser.add_argument("--devto-api-key", default=os.getenv("DEVTO_API_KEY", ""))
     args = parser.parse_args()
+
+    if args.publish and not args.devto_api_key:
+        print("Warning: --publish set but DEVTO_API_KEY is not set; skipping publish.")
+        args.publish = False
 
     if not any(
         os.getenv(name) for name in ("COPILOT_GITHUB_TOKEN", "GH_TOKEN", "GITHUB_TOKEN")
