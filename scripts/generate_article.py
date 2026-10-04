@@ -27,6 +27,10 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
+from aut0ps.config import load_dotenv
+
+load_dotenv(Path(".env"))
+
 COPILOT_BIN = os.getenv("COPILOT_CLI_BIN", "copilot")
 DEFAULT_MODEL = os.getenv("ARTICLE_MODEL", "")  # empty = Copilot CLI's default model
 MAX_PAGES = 25
@@ -95,6 +99,8 @@ def _devto_request(method: str, url: str, api_key: str, payload: dict) -> dict:
             "api-key": api_key,
             "Content-Type": "application/json",
             "Accept": "application/vnd.forem.api-v1+json",
+            # dev.to rejects requests with no User-Agent (403), even with a valid key.
+            "User-Agent": "aut0ps-article-publisher/1.0",
         },
     )
     try:
@@ -513,6 +519,10 @@ def _write_bundle(bundle_dir: Path, data: dict, extra_meta: dict) -> Path:
     bundle_dir.mkdir(parents=True, exist_ok=True)
     index_path = bundle_dir / "index.md"
     index_path.write_text(sanitize_body(str(data["body"])), encoding="utf-8")
+    meta_path = bundle_dir / "meta.json"
+    # Preserve dev.to identifiers from a prior publish so regenerating an edition
+    # updates the existing post instead of creating a duplicate.
+    previous_meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.exists() else {}
     meta = {
         "title": str(data["title"]).strip(),
         "description": str(data.get("description", "")).strip(),
@@ -520,8 +530,11 @@ def _write_bundle(bundle_dir: Path, data: dict, extra_meta: dict) -> Path:
         "author": "vinlawz",
         "generated": dt.datetime.now(dt.timezone.utc).isoformat(),
     }
+    for key in ("devto_id", "devto_url"):
+        if key in previous_meta:
+            meta[key] = previous_meta[key]
     meta.update(extra_meta)
-    (bundle_dir / "meta.json").write_text(
+    meta_path.write_text(
         json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
     return index_path
