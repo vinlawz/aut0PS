@@ -39,10 +39,10 @@ class GenerateArticleFallbackTests(unittest.TestCase):
 
         article = self.module._fallback_run_article("2026-09-25", "5", pages)
 
-        self.assertEqual(article["title"], "devops roundup for 2026-09-25, edition 5")
+        self.assertEqual(article["title"], "tech roundup for 2026-09-25, edition 5")
         self.assertIn("## sources", article["body"])
         self.assertIn("[devops update](https://example.com/devops)", article["body"])
-        self.assertIn("automation", article["tags"])
+        self.assertIn("technology", article["tags"])
 
     def test_run_fallback_article_uses_placeholder_when_title_is_missing(self):
         article = self.module._fallback_run_article(

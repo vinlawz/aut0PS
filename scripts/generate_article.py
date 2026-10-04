@@ -42,9 +42,10 @@ DEVTO_API_URL = "https://dev.to/api/articles"
 DEVTO_MAX_TAGS = 4
 
 SYSTEM_PROMPT = """You write technical blog articles about DevOps, platform engineering,
-site reliability, and infrastructure automation for a developer audience.
+site reliability, infrastructure automation, cybersecurity, artificial intelligence, software
+development, and general tech industry news and events, for a developer audience.
 
-Article type: technical tutorial / tech roundup. Voice rules:
+Article type: technical tutorial / tech roundup / tech news. Voice rules:
 - lowercase throughout, except proper nouns (Python, Django, Kenya) and acronyms (API, CSS, AI).
 - correct American English grammar, spelling, and punctuation. lowercase is a style choice,
   not an excuse for bad grammar.
@@ -304,13 +305,22 @@ def _fallback_tags(texts: list[str], default: list[str]) -> list[str]:
         "kubernetes",
         "observability",
         "security",
+        "cybersecurity",
+        "ai",
+        "machine-learning",
+        "software-development",
+        "programming",
         "automation",
         "ci-cd",
         "cloud",
         "infrastructure-as-code",
     )
     combined = " ".join(texts).lower()
-    counts = collections.Counter(tag for tag in vocabulary if tag.replace("-", " ") in combined)
+    counts = collections.Counter(
+        tag
+        for tag in vocabulary
+        if re.search(r"\b%s\b" % re.escape(tag.replace("-", " ")), combined)
+    )
     tags = [tag for tag, _ in counts.most_common(4)]
     for tag in default:
         if tag not in tags:
@@ -377,7 +387,7 @@ def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
         ],
     ]
     return {
-        "title": "devops roundup for %s, edition %s" % (day, edition_label),
+        "title": "tech roundup for %s, edition %s" % (day, edition_label),
         "description": (
             "the short version: plenty happened, and at least some of it was "
             "actually useful."
@@ -391,7 +401,7 @@ def _fallback_run_article(day: str, edition_label: str, pages) -> dict:
                 + _clean_text(row["markdown"])
                 for row in selected
             ],
-            ["devops", "platform-engineering", "automation"],
+            ["technology", "software", "automation"],
         ),
         "body": "\n".join(body_lines).strip(),
     }
@@ -613,8 +623,10 @@ def _run_article(args) -> Path:
         "the aut0ps automated crawler during this edition window. Write ONE cohesive "
         "technical article (600-1000 words) that synthesizes the most interesting and "
         "technically substantive themes for developers. Focus on DevOps, platform engineering, "
-        "site reliability, infrastructure as code, observability, and automation. "
-        "Do not force an AI angle or make agents the default subject. Group related items, "
+        "site reliability, infrastructure as code, observability, automation, cybersecurity, "
+        "artificial intelligence, software development, and notable tech industry news or "
+        "events. Do not force an AI angle or make agents the default subject. Group related "
+        "items, "
         "explain why they matter to engineers, and link every claim to its source URL "
         "inline. End the "
         "body with an H2 'sources' section listing all URLs used.\n\n%s"
@@ -652,7 +664,8 @@ def _digest_article(args) -> Path:
         "developments, notes how the story evolved across editions, and references the earlier "
         "articles. Keep the day balanced: AIOps and AI agents may be important, but give equal "
         "editorial attention to other well-supported areas such as platform engineering, site "
-        "reliability, infrastructure as code, CI/CD, observability, and security. Do not "
+        "reliability, infrastructure as code, CI/CD, observability, security, cybersecurity, "
+        "artificial intelligence, software development, and general tech industry news. Do not "
         "invent a connection to AI agents when the evidence does not support one. "
         "Reference earlier articles by their edition name (e.g. 'as covered in "
         "edition-1') as well as the original "

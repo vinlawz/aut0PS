@@ -66,6 +66,26 @@
       "query": "(\"chaos engineering\" OR resilience OR \"disaster recovery\" OR failover) (testing OR practice OR tool) after:{start_date}"
     },
     {
+      "name": "Cybersecurity and vulnerabilities",
+      "platform": "google",
+      "query": "(cybersecurity OR vulnerability OR breach OR ransomware OR \"zero-day\" OR malware) (disclosed OR patched OR report) after:{start_date}"
+    },
+    {
+      "name": "Artificial intelligence and LLMs",
+      "platform": "google",
+      "query": "(\"artificial intelligence\" OR \"large language model\" OR LLM OR \"generative AI\" OR OpenAI OR Anthropic OR Gemini) (release OR launch OR update) after:{start_date}"
+    },
+    {
+      "name": "Software development and languages",
+      "platform": "google",
+      "query": "(\"software development\" OR programming OR \"software engineering\" OR framework OR \"programming language\") (release OR update OR best practice) after:{start_date}"
+    },
+    {
+      "name": "Tech industry news and events",
+      "platform": "google",
+      "query": "(tech conference OR \"product launch\" OR \"funding round\" OR acquisition OR keynote) (announced OR unveiled) after:{start_date}"
+    },
+    {
       "name": "DevOps and platform engineering on X",
       "platform": "x",
       "query": "(devops OR \"platform engineering\" OR sre OR kubernetes OR terraform) (release OR launch OR outage) since:{start_date} lang:en"
@@ -235,6 +255,58 @@
       "exclude_paths": ["/login*", "/user*", "/from*", "/submit*", "/newest*", "/ask*", "/show*", "/jobs*"],
       "max_depth": 1,
       "notes": "Crawl HN item pages for discussions relevant to devops/infrastructure topics."
+    },
+    {
+      "name": "The Hacker News (cybersecurity)",
+      "url": "https://thehackernews.com/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://feeds.feedburner.com/TheHackersNews"],
+      "include_paths": ["/20*/*"],
+      "exclude_paths": ["/search*"],
+      "max_depth": 1,
+      "notes": "Cybersecurity vulnerabilities, breaches, and malware coverage."
+    },
+    {
+      "name": "VentureBeat AI",
+      "url": "https://venturebeat.com/category/ai/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://venturebeat.com/category/ai/feed/"],
+      "include_paths": ["/ai/*"],
+      "exclude_paths": ["/tag/*"],
+      "max_depth": 1,
+      "notes": "AI and LLM product launches and industry coverage."
+    },
+    {
+      "name": "Stack Overflow blog",
+      "url": "https://stackoverflow.blog/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 10,
+      "rss_feeds": ["https://stackoverflow.blog/feed/"],
+      "include_paths": ["/20*/*"],
+      "exclude_paths": ["/tag/*"],
+      "max_depth": 1,
+      "notes": "General software development and programming practice coverage."
+    },
+    {
+      "name": "TechCrunch",
+      "url": "https://techcrunch.com/",
+      "enabled": true,
+      "mode": "crawl",
+      "provider": "fallback",
+      "limit": 15,
+      "rss_feeds": ["https://techcrunch.com/feed/"],
+      "include_paths": ["/20*/*"],
+      "exclude_paths": ["/tag/*", "/video/*"],
+      "max_depth": 1,
+      "notes": "General tech industry news, product launches, funding, and events."
     }
   ],
   "terms": [
@@ -283,7 +355,32 @@
     "automation",
     "docker",
     "container",
-    "microservices"
+    "microservices",
+    "cybersecurity",
+    "vulnerability",
+    "breach",
+    "ransomware",
+    "malware",
+    "zero-day",
+    "phishing",
+    "penetration testing",
+    "artificial intelligence",
+    "machine learning",
+    "llm",
+    "generative ai",
+    "openai",
+    "anthropic",
+    "gpt",
+    "software development",
+    "programming",
+    "software engineering",
+    "framework",
+    "programming language",
+    "tech conference",
+    "product launch",
+    "funding round",
+    "acquisition",
+    "startup"
   ],
   "include_domains": [],
   "exclude_domains": [
