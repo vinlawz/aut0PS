@@ -108,22 +108,37 @@ def _call_model(model: str, prompt: str, out_path: Path) -> str:
 
     if out_path.exists():
         out_path.unlink()
-    full_prompt = (
-        "%s\n\nInstead of replying in chat, write ONLY the JSON object to the file "
-        "%s (create it if needed). Do not create or modify any other files."
-        % (prompt, out_path)
+    # Long prompts overflow the Windows command-line length limit for -p, so the
+    # full prompt goes to a file and the agent is told to read it instead.
+    prompt_path = Path(".article-prompt.md")
+    prompt_path.write_text(prompt, encoding="utf-8")
+    short_prompt = (
+        "Read the file %s in the current directory for your full instructions and "
+        "context, then write ONLY the JSON object it describes to the file %s "
+        "(create it if needed). Do not create or modify any other files."
+        % (prompt_path, out_path)
     )
-    command = [COPILOT_BIN, "-p", full_prompt, "--allow-all-tools"]
+    command = [COPILOT_BIN, "-p", short_prompt, "--allow-all-tools"]
     if model:
         command += ["--model", model]
     try:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=1800)
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=1800,
+        )
     except FileNotFoundError:
         raise CopilotGenerationError(
             "Copilot CLI not found; install it with: npm install -g @github/copilot"
         )
     except subprocess.TimeoutExpired as exc:
         raise CopilotGenerationError("Copilot CLI timed out while generating the article") from exc
+    finally:
+        if prompt_path.exists():
+            prompt_path.unlink()
     if out_path.exists():
         content = out_path.read_text(encoding="utf-8")
         out_path.unlink()
