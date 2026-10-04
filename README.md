@@ -32,11 +32,13 @@ Edit [`config/seeds.json`](config/seeds.json) to configure search terms and craw
 ## Article generation and publishing
 
 `scripts/generate_article.py` writes articles from the crawled corpus using the GitHub Copilot
-CLI agent. Add `--publish` (and a `DEVTO_API_KEY` in `.env`) to publish the result to
-[dev.to](https://dev.to) as well as writing it locally; re-running the same edition updates the
-existing dev.to post instead of creating a duplicate.
+CLI agent. `run` writes one article per crawl edition (kept local, raw material for the digest);
+`digest` writes the polished end-of-day editorial. Add `--publish` (and a `DEVTO_API_KEY` in
+`.env`) to also publish the result to [dev.to](https://dev.to); re-running the same edition
+updates the existing dev.to post instead of creating a duplicate. Only the digest is published by
+the scheduled workflow, to avoid posting six times a day to one dev.to profile.
 
 ```bash
-uv run python scripts/generate_article.py run --edition-label 1 --publish
+uv run python scripts/generate_article.py run --edition-label 1
 uv run python scripts/generate_article.py digest --publish
 ```

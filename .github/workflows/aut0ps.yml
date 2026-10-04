@@ -109,10 +109,9 @@ jobs:
         if: steps.window.outputs.active == 'true'
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
         run: |
           uv run python scripts/generate_article.py run \
-            --edition-label "${{ steps.slot.outputs.edition }}" --publish
+            --edition-label "${{ steps.slot.outputs.edition }}"
 
       - name: Generate daily digest
         if: steps.window.outputs.active == 'true' && steps.slot.outputs.digest == 'true'
