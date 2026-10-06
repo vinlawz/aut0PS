@@ -5,6 +5,10 @@ the strongest threads here point back to day-two engineering pressure: teams are
 
 ## notable reads
 
+### Fake ChatGPT, Gemini, and Claude Ad Portals Capture Credentials and MFA Codes
+
+[Fake ChatGPT, Gemini, and Claude Ad Portals Capture Credentials and MFA Codes](https://thehackernews.com/2026/10/fake-chatgpt-gemini-and-claude-ad.html) from The Hacker News (cybersecurity) is worth your time because Cybersecurity researchers have disclosed details of a "human-operated phishing platform" that impersonates advertising products for artificial intelligence (AI) chatbots like Google Gemini, Anthropic Claude, OpenAI ChatGPT, Perplexity, M.
+
 ### From 40 seconds to under 10: rebuilding incident detection on OpenTelemetry, Apache Kafka, and Apache Flink on Kubernetes
 
 [From 40 seconds to under 10: rebuilding incident detection on OpenTelemetry, Apache Kafka, and Apache Flink on Kubernetes](https://www.cncf.io/blog/2026/09/30/from-40-seconds-to-under-10-rebuilding-incident-detection-on-opentelemetry-apache-kafka-and-apache-flink-on-kubernetes/) from CNCF blog is worth your time because Every SaaS company has the same uncomfortable question after a major incident: who noticed first, the monitoring or the customers? For a long time our honest answer was “it depends”. This post describes how a small.
@@ -21,17 +25,13 @@ the strongest threads here point back to day-two engineering pressure: teams are
 
 [Scaling Kubernetes Workloads with Node Swap](https://kubernetes.io/blog/2026/10/05/scaling-kubernetes-workloads-with-node-swap/) from Kubernetes blog is worth your time because Memory is often the first hard limit a Kubernetes cluster hits. Nodes run out of RAM long before they run out of CPU, and the new wave of agentic AI workloads makes this worse. These workloads demand large memory footprints to start up a.
 
-### Kubernetes and AI Put FinOps Cost Allocation to the Test - Cloud Native Now
-
-[Kubernetes and AI Put FinOps Cost Allocation to the Test - Cloud Native Now](https://news.google.com/rss/articles/CBMiowFBVV95cUxNV0RhSTBZMHdyaHhBVzNGSUdiNl9fdndNeUJFN2Q1ZWdvU2hINFcxQkNRMnRZT0NDRFoyZXhjOUdpQk9ZZE1lYzhNVmVZRGNzcVdWMGkzcm4xRThvMzRTLS1QV1AtTkZoVUZrLTVUcXhOUE56bTB3d013Q05QblVSUWdoUXU0T1BNUmtlQXU4VkFiN2t6Q1hScy1TaUVXbWEtVVlR?oc=5) from search is worth your time because Kubernetes and AI Put FinOps Cost Allocation to the Test Cloud Native Now.
-
 ## sources
 
+- [Fake ChatGPT, Gemini, and Claude Ad Portals Capture Credentials and MFA Codes](https://thehackernews.com/2026/10/fake-chatgpt-gemini-and-claude-ad.html)
 - [From 40 seconds to under 10: rebuilding incident detection on OpenTelemetry, Apache Kafka, and Apache Flink on Kubernetes](https://www.cncf.io/blog/2026/09/30/from-40-seconds-to-under-10-rebuilding-incident-detection-on-opentelemetry-apache-kafka-and-apache-flink-on-kubernetes/)
 - [Kubernetes v1.37: Native Histograms Graduates to Beta](https://kubernetes.io/blog/2026/09/11/kubernetes-v1-37-native-histograms-beta/)
 - [Spotlight on SIG Apps](https://kubernetes.io/blog/2026/09/22/sig-apps-spotlight/)
 - [Scaling Kubernetes Workloads with Node Swap](https://kubernetes.io/blog/2026/10/05/scaling-kubernetes-workloads-with-node-swap/)
-- [Kubernetes and AI Put FinOps Cost Allocation to the Test - Cloud Native Now](https://news.google.com/rss/articles/CBMiowFBVV95cUxNV0RhSTBZMHdyaHhBVzNGSUdiNl9fdndNeUJFN2Q1ZWdvU2hINFcxQkNRMnRZT0NDRFoyZXhjOUdpQk9ZZE1lYzhNVmVZRGNzcVdWMGkzcm4xRThvMzRTLS1QV1AtTkZoVUZrLTVUcXhOUE56bTB3d013Q05QblVSUWdoUXU0T1BNUmtlQXU4VkFiN2t6Q1hScy1TaUVXbWEtVVlR?oc=5)
 
 ---
 
