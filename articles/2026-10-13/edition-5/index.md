@@ -5,6 +5,10 @@ the strongest threads here point back to day-two engineering pressure: teams are
 
 ## notable reads
 
+### Redesigning source control at Anthropic | Hacker News
+
+[Redesigning source control at Anthropic | Hacker News](https://news.ycombinator.com/item?id=50073633) from Hacker News item pages is worth your time because Redesigning source control at Anthropic | Hacker News Hacker News new | past | comments | ask | show | jobs | submit login Redesigning source control at Anthropic ( anthropic.com ) 452 points by Philpax 7 hours ago | hide | past | favori.
+
 ### Kubernetes v1.37: Native Histograms Graduates to Beta
 
 [Kubernetes v1.37: Native Histograms Graduates to Beta](https://kubernetes.io/blog/2026/09/11/kubernetes-v1-37-native-histograms-beta/) from Kubernetes blog is worth your time because I'm excited to announce that native histogram support for Kubernetes metrics is graduating to Beta and is enabled by default in Kubernetes v1.37! Native histograms (previously introduced as Alpha in Kubernetes v1.36 under KEP-5808 ) brin.
@@ -17,21 +21,17 @@ the strongest threads here point back to day-two engineering pressure: teams are
 
 [Scaling Kubernetes Workloads with Node Swap](https://kubernetes.io/blog/2026/10/05/scaling-kubernetes-workloads-with-node-swap/) from Kubernetes blog is worth your time because Memory is often the first hard limit a Kubernetes cluster hits. Nodes run out of RAM long before they run out of CPU, and the new wave of agentic AI workloads makes this worse. These workloads demand large memory footprints to start up a.
 
-### OpenTelemetry Makes Kubernetes Attributes Processor Stable as Observability Schema Matures
+### OpenAI, Anthropic tell Australia they would welcome data breach rules - Reuters
 
-[OpenTelemetry Makes Kubernetes Attributes Processor Stable as Observability Schema Matures](https://www.infoq.com/news/2026/10/opentelemetry-kubernetes-observ/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=DevOps) from InfoQ is worth your time because OpenTelemetry has promoted its Kubernetes Attributes Processor to v1.0.0, marking a significant step in making Kubernetes telemetry more predictable and stable across observability pipelines. By Craig Risi.
-
-### Anthropic admits its Claude AI agents tried to breach government websites during tests - Startup Fortune
-
-[Anthropic admits its Claude AI agents tried to breach government websites during tests - Startup Fortune](https://news.google.com/rss/articles/CBMitAFBVV95cUxPVlF2dmIwN3lPZjBEaFRYaVlDU2hHWXNXNUNISjdiTEgyc1dycTFmdElzRFN3QW00ZXk1QjQ2OHBZOVFneUxHVk1DUU9URXpmTGc2RjVRb3FTdHQ4R3JlOUFMTnNsWXNDYnpLSFFLc05KMVJ2dktxLUVzV0JOVmlRMy1UNFNnMEYwRXdQZlhSVE9RMmo3OVlsajg1TWxtckdURUltWVl1ZG1mLUJIV1pLUFQ1NEM?oc=5) from search is worth your time because Anthropic admits its Claude AI agents tried to breach government websites during tests Startup Fortune.
+[OpenAI, Anthropic tell Australia they would welcome data breach rules - Reuters](https://news.google.com/rss/articles/CBMixgFBVV95cUxPakluaktNLUFlZk8zejE5LUV6VWYtdkphTjB0UVpiYjJ2WVYwd2lXUC0xMTdPcFJXYUNMajk5MlMtcmNlSUxiUGY3T0plNzYxMG02X09jbkNlcDBldEdueENYdXhHVnd6TkVmVExyZGtzN0hqdUF5X2VsaEVMX3hWT21ob3VvWWE5UlNqbnZLb24yTXJlYWJiZGl1cjRWNnNad1ljTlF4WTVJREEza2Y0SmlmX0E0QzJfeVZjU1hFOXdYeDU2bEE?oc=5) from search is worth your time because OpenAI, Anthropic tell Australia they would welcome data breach rules Reuters.
 
 ## sources
 
+- [Redesigning source control at Anthropic | Hacker News](https://news.ycombinator.com/item?id=50073633)
 - [Kubernetes v1.37: Native Histograms Graduates to Beta](https://kubernetes.io/blog/2026/09/11/kubernetes-v1-37-native-histograms-beta/)
 - [Spotlight on SIG Apps](https://kubernetes.io/blog/2026/09/22/sig-apps-spotlight/)
 - [Scaling Kubernetes Workloads with Node Swap](https://kubernetes.io/blog/2026/10/05/scaling-kubernetes-workloads-with-node-swap/)
-- [OpenTelemetry Makes Kubernetes Attributes Processor Stable as Observability Schema Matures](https://www.infoq.com/news/2026/10/opentelemetry-kubernetes-observ/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=DevOps)
-- [Anthropic admits its Claude AI agents tried to breach government websites during tests - Startup Fortune](https://news.google.com/rss/articles/CBMitAFBVV95cUxPVlF2dmIwN3lPZjBEaFRYaVlDU2hHWXNXNUNISjdiTEgyc1dycTFmdElzRFN3QW00ZXk1QjQ2OHBZOVFneUxHVk1DUU9URXpmTGc2RjVRb3FTdHQ4R3JlOUFMTnNsWXNDYnpLSFFLc05KMVJ2dktxLUVzV0JOVmlRMy1UNFNnMEYwRXdQZlhSVE9RMmo3OVlsajg1TWxtckdURUltWVl1ZG1mLUJIV1pLUFQ1NEM?oc=5)
+- [OpenAI, Anthropic tell Australia they would welcome data breach rules - Reuters](https://news.google.com/rss/articles/CBMixgFBVV95cUxPakluaktNLUFlZk8zejE5LUV6VWYtdkphTjB0UVpiYjJ2WVYwd2lXUC0xMTdPcFJXYUNMajk5MlMtcmNlSUxiUGY3T0plNzYxMG02X09jbkNlcDBldEdueENYdXhHVnd6TkVmVExyZGtzN0hqdUF5X2VsaEVMX3hWT21ob3VvWWE5UlNqbnZLb24yTXJlYWJiZGl1cjRWNnNad1ljTlF4WTVJREEza2Y0SmlmX0E0QzJfeVZjU1hFOXdYeDU2bEE?oc=5)
 
 ---
 
